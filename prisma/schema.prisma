@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Category {
+  id          String       @id
+  name        String       @unique
+  slug        String       @unique
+  products    Product[]
+  comparisons Comparison[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Product {
+  id            String       @id
+  name          String
+  slug          String       @unique
+  image         String
+  heroImage     String?
+  description   String
+  price         String
+  rating        Float
+  categoryId    String
+  category      Category     @relation(fields: [categoryId], references: [id])
+  specs         String
+  pros          String
+  cons          String
+  affiliateLink String?
+  comparisonsA  Comparison[] @relation("ProductA")
+  comparisonsB  Comparison[] @relation("ProductB")
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Comparison {
+  id              String    @id
+  title           String
+  slug            String    @unique
+  description     String
+  categoryId      String
+  category        Category  @relation(fields: [categoryId], references: [id])
+  productAId      String
+  productA        Product   @relation("ProductA", fields: [productAId], references: [id])
+  productBId      String
+  productB        Product   @relation("ProductB", fields: [productBId], references: [id])
+  summary         String
+  verdict         String
+  winnerIndex     Int
+  prosPerProductA String
+  consPerProductA String
+  prosPerProductB String
+  consPerProductB String
+  heroImage       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
