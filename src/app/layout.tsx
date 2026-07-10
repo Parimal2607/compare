@@ -4,6 +4,8 @@ import "./globals.css"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 
+const AD_PUBLISHER_ID = "ca-pub-5033636336412223"
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -44,6 +46,9 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  other: {
+    "google-adsense-account": AD_PUBLISHER_ID,
   },
 }
 
