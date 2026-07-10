@@ -36,6 +36,19 @@ interface RawComparisonRow {
   heroImage: string | null
 }
 
+function parseSpecs(str: string): Record<string, string> {
+  try {
+    const parsed = JSON.parse(str)
+    if (Array.isArray(parsed)) {
+      return Object.fromEntries(parsed.filter(([k]: [string, string]) => k?.trim()))
+    }
+    if (typeof parsed === "object" && parsed !== null) return parsed
+    return {}
+  } catch {
+    return {}
+  }
+}
+
 function safeJsonParse<T>(str: string, fallback: T): T {
   try {
     return JSON.parse(str)
@@ -56,7 +69,7 @@ export function parseProduct(row: RawProductRow): Product {
     rating: row.rating,
     category: row.category?.name ?? row.categoryId,
     categoryId: row.categoryId,
-    specs: safeJsonParse(row.specs, {}),
+    specs: parseSpecs(row.specs),
     pros: safeJsonParse(row.pros, []),
     cons: safeJsonParse(row.cons, []),
     affiliateLink: row.affiliateLink ?? undefined,
