@@ -28,6 +28,12 @@ export default function Header() {
           >
             Categories
           </Link>
+          <Link
+            href="/products"
+            className="text-gray-500 transition-all duration-300 hover:text-violet-600 relative after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-gradient-to-r after:from-violet-500 after:to-blue-500 after:transition-all after:duration-300 hover:after:w-full"
+          >
+            Products
+          </Link>
         </nav>
       </div>
     </header>

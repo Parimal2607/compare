@@ -187,7 +187,7 @@ export default async function Home() {
               </svg>
             </Link>
             <Link
-              href="/categories"
+              href="/products"
               className="inline-flex h-12 items-center rounded-xl border border-white/20 bg-white/10 px-7 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
             >
               Browse Products
