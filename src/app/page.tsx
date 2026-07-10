@@ -1,7 +1,7 @@
 import Link from "next/link"
-import { getCategoryComparisonsMap, getLatestComparisonPerCategory, getComparisonCount } from "@/data/comparisons"
+import { getCategoryComparisonsMap, getComparisonCount } from "@/data/comparisons"
 import { getCategoryNames, getProductCount, getProducts } from "@/data/products"
-import HeroSlider from "@/components/HeroSlider"
+import HeroBanner from "@/components/HeroBanner"
 import ComparisonCard from "@/components/ComparisonCard"
 import LatestProductsSection from "@/components/LatestProductsSection"
 import { websiteSchema } from "@/lib/schema"
@@ -9,8 +9,7 @@ import { websiteSchema } from "@/lib/schema"
 export const revalidate = 60
 
 export default async function Home() {
-  const [slideData, categoryData, totalComparisons, categoryNames, productCount, products] = await Promise.all([
-    getLatestComparisonPerCategory(),
+  const [categoryData, totalComparisons, categoryNames, productCount, products] = await Promise.all([
     getCategoryComparisonsMap(4),
     getComparisonCount(),
     getCategoryNames(),
@@ -26,7 +25,11 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(wsSchema) }}
       />
-      <HeroSlider slides={slideData} />
+      <HeroBanner slides={[
+        { image: "https://www.triveniworld.com/cdn/shop/articles/top-mobile-phones-of-2025-guides-and-reviews-triveni-world.webp?v=1736040418" },
+        { image: "https://www.gizmochina.com/wp-content/uploads/2025/07/Upcoming-smartphones-July-2025.png" },
+        { image: "https://s3b.cashify.in/gpro/uploads/2022/07/07020311/Best-Mobile-Phones-In-The-World.jpg" },
+      ]} />
 
       <section className="border-b border-gray-100 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
