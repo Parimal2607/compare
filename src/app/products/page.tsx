@@ -1,8 +1,20 @@
 import { getProducts } from "@/data/products"
 import { getCategories } from "@/data/products"
 import ProductGrid from "@/components/ProductGrid"
+import type { Metadata } from "next"
 
 export const revalidate = 60
+
+export const metadata: Metadata = {
+  title: "Browse Products",
+  description:
+    "Browse all reviewed products side-by-side. Compare specs, prices, and ratings to make an informed decision.",
+  openGraph: {
+    title: "Browse Products | CompareHub",
+    description:
+      "Browse all reviewed products side-by-side. Compare specs, prices, and ratings to make an informed decision.",
+  },
+}
 
 export default async function ProductsPage() {
   const [products, categories] = await Promise.all([
