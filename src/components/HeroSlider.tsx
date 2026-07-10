@@ -37,23 +37,16 @@ export default function HeroSlider({ slides }: { slides: SlideData[] }) {
 
   return (
     <section className="relative h-[85vh] min-h-[600px] max-h-[800px] overflow-hidden bg-gray-950">
-      {slides.map((s, i) => (
-        <div
-          key={s.comparison.id}
-          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-            i === current ? "opacity-80 scale-100" : "opacity-0 scale-110"
-          }`}
-        >
-          <SafeImage
-            src={s.comparison.heroImage || s.productA?.heroImage || s.productA?.image || ""}
-            alt={s.comparison.title}
-            fill
-            className="object-cover"
-            priority={i === 0}
-            sizes="100vw"
-          />
-        </div>
-      ))}
+      <div className="absolute inset-0">
+        <SafeImage
+          src={slide.comparison.heroImage || slide.productA?.heroImage || slide.productA?.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTv4ySzNnr6PJR6lWweBMqEpHiUJH9fHebxiSMevunMtVLQ98iaIA5RC62R&s=10"}
+          alt={slide.comparison.title}
+          fill
+          className="object-cover transition-all duration-1000 ease-in-out"
+          priority
+          sizes="100vw"
+        />
+      </div>
 
       <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-gray-950/10" />
       <div className="absolute inset-0 bg-gradient-to-r from-gray-950/30 via-transparent to-gray-950/30" />
