@@ -1,21 +1,47 @@
 "use client"
 
-import { useState, useMemo, ReactNode } from "react"
+import { useState, useMemo } from "react"
+import Link from "next/link"
+import { DeleteButton } from "./DeleteButton"
 
-type Row = Record<string, unknown> & { id: string; category?: { name: string; id: string } | null }
+function CellValue({ value }: { value: unknown }) {
+  if (value === null || value === undefined) return <span className="text-gray-300">—</span>
+  if (typeof value === "object" && "name" in (value as object)) return <>{String((value as { name: string }).name)}</>
+  return <>{String(value)}</>
+}
+
+type Row = Record<string, unknown> & {
+  id: string
+  category?: { name: string; id: string } | null
+  slug?: string | null
+  name?: string | null
+  title?: string | null
+  price?: string | null
+}
+
+interface Column<T extends Row> {
+  key: string
+  label: string
+}
 
 interface DataTableProps<T extends Row> {
   data: T[]
   categories: { id: string; name: string }[]
   searchFields: (keyof T)[]
   labelKey: keyof T
-  renderTable: (items: T[]) => ReactNode
+  slugKey?: keyof T
+  columns: Column<T>[]
+  editUrlPrefix: string
+  onDelete: (formData: FormData) => void
+  deleteConfirmMsg?: string
   pageSize?: number
   emptyMessage?: string
 }
 
 export default function DataTable<T extends Row>({
-  data, categories, searchFields, labelKey, renderTable, pageSize = 10, emptyMessage = "No items yet.",
+  data, categories, searchFields, labelKey, slugKey = "slug" as keyof T,
+  columns, editUrlPrefix, onDelete, deleteConfirmMsg = "Delete?",
+  pageSize = 10, emptyMessage = "No items yet.",
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("")
@@ -74,7 +100,47 @@ export default function DataTable<T extends Row>({
           <p className="px-6 py-10 text-center text-sm text-gray-400">{emptyMessage}</p>
         </div>
       ) : (
-        renderTable(paged)
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50/50">
+                {columns.map((col) => (
+                  <th key={col.key} className="px-6 py-3 text-left font-semibold text-gray-600">{col.label}</th>
+                ))}
+                <th className="px-6 py-3 text-right font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paged.map((item) => {
+                const label = String(item[labelKey] ?? "")
+                const slug = slugKey ? String(item[slugKey] ?? "") : ""
+                return (
+                  <tr key={item.id} className="border-b border-gray-50 last:border-0">
+                    {columns.map((col) => (
+                      <td key={col.key} className="px-6 py-4 text-gray-500">
+                        {col.key === labelKey ? (
+                          <>
+                            <div className="font-medium text-gray-900">{label}</div>
+                            {slug && <div className="text-xs text-gray-400 font-mono mt-0.5">{slug}</div>}
+                          </>
+                        ) : (
+                          <CellValue value={item[col.key]} />
+                        )}
+                      </td>
+                    ))}
+                    <td className="px-6 py-4 text-right">
+                      <Link href={`${editUrlPrefix}${item.id}`} className="rounded-lg px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50 transition-colors">Edit</Link>
+                      <form action={onDelete} className="inline ml-1">
+                        <input type="hidden" name="id" value={item.id} />
+                        <DeleteButton label="Delete" confirmMsg={deleteConfirmMsg} />
+                      </form>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {totalPages > 1 && (
