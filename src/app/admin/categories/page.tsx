@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { EditCategoryModal } from "@/components/admin/EditCategoryModal"
 import { DeleteButton } from "@/components/admin/DeleteButton"
+import DeleteAllButton from "@/components/admin/DeleteAllButton"
 
 function slugify(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
@@ -40,12 +41,27 @@ async function deleteCat(formData: FormData) {
   revalidatePath("/categories")
 }
 
+async function deleteAll() {
+  "use server"
+  await prisma.comparison.deleteMany()
+  await prisma.product.deleteMany()
+  await prisma.category.deleteMany()
+  revalidatePath("/admin/categories")
+  revalidatePath("/")
+  revalidatePath("/categories")
+}
+
 export default async function AdminCategories() {
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } })
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Categories</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
+        <form action={deleteAll}>
+          <DeleteAllButton confirmMsg="Delete ALL categories, products, and comparisons? This cannot be undone." disabled={categories.length === 0} />
+        </form>
+      </div>
 
       <div className="mb-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-sm font-semibold text-gray-900 mb-4">Add Category</h2>
