@@ -16,7 +16,9 @@ async function deleteAll() {
   "use server"
   await prisma.comparison.deleteMany()
   revalidatePath("/admin/comparisons")
-  revalidatePath("/")
+  revalidatePath("/admin/products")
+  revalidatePath("/admin/categories")
+  revalidatePath("/", "layout")
 }
 
 export default async function AdminComparisons() {

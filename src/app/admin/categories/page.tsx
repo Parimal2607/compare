@@ -47,8 +47,9 @@ async function deleteAll() {
   await prisma.product.deleteMany()
   await prisma.category.deleteMany()
   revalidatePath("/admin/categories")
-  revalidatePath("/")
-  revalidatePath("/categories")
+  revalidatePath("/admin/products")
+  revalidatePath("/admin/comparisons")
+  revalidatePath("/", "layout")
 }
 
 export default async function AdminCategories() {
