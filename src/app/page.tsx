@@ -1,19 +1,21 @@
 import Link from "next/link"
 import { getCategoryComparisonsMap, getLatestComparisonPerCategory, getComparisonCount } from "@/data/comparisons"
-import { getCategoryNames, getProductCount } from "@/data/products"
+import { getCategoryNames, getProductCount, getProducts } from "@/data/products"
 import HeroSlider from "@/components/HeroSlider"
 import ComparisonCard from "@/components/ComparisonCard"
+import LatestProductsSection from "@/components/LatestProductsSection"
 import { websiteSchema } from "@/lib/schema"
 
 export const revalidate = 60
 
 export default async function Home() {
-  const [slideData, categoryData, totalComparisons, categoryNames, productCount] = await Promise.all([
+  const [slideData, categoryData, totalComparisons, categoryNames, productCount, products] = await Promise.all([
     getLatestComparisonPerCategory(),
     getCategoryComparisonsMap(4),
     getComparisonCount(),
     getCategoryNames(),
     getProductCount(),
+    getProducts(),
   ])
 
   const wsSchema = websiteSchema()
@@ -45,6 +47,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <LatestProductsSection products={products} />
 
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mb-6 text-center">
