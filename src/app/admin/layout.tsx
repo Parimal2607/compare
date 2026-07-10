@@ -15,6 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <NavItem href="/admin/categories" label="Categories" />
           <NavItem href="/admin/products" label="Products" />
           <NavItem href="/admin/comparisons" label="Comparisons" />
+          <NavItem href="/admin/import" label="Import Product" />
         </nav>
         <div className="mt-12 border-t border-gray-100 pt-6">
           <Link href="/" className="text-xs text-gray-400 hover:text-violet-600 transition-colors">← Back to site</Link>
