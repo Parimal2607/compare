@@ -12,6 +12,7 @@ export async function getCategoryComparisonsMap(take = 4): Promise<CategoryCompa
   const categories = await prisma.category.findMany()
   const allComparisons = await prisma.comparison.findMany({
     include: { category: true },
+    orderBy: { createdAt: "desc" },
   })
 
   const grouped = new Map<string, typeof allComparisons>()
@@ -66,9 +67,36 @@ export async function getComparisonCount(): Promise<number> {
   return prisma.comparison.count()
 }
 
+export async function getLatestComparisonPerCategory() {
+  const categories = await prisma.category.findMany()
+  const results = await Promise.all(
+    categories.map((cat) =>
+      prisma.comparison.findFirst({
+        where: { categoryId: cat.id },
+        include: { category: true },
+        orderBy: { createdAt: "desc" },
+      })
+    ),
+  )
+  const comparisons = results.filter((c): c is NonNullable<typeof c> => c !== null)
+
+  const productIds = [...new Set(comparisons.flatMap((r) => [r.productAId, r.productBId]))]
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    include: { category: true },
+  })
+  const productMap = new Map(products.map((p) => [p.id, parseProduct(p)]))
+  return comparisons.map((row) => ({
+    comparison: parseComparison(row),
+    productA: productMap.get(row.productAId) ?? null,
+    productB: productMap.get(row.productBId) ?? null,
+  }))
+}
+
 export async function getComparisonsWithProducts(take = 3) {
   const rows = await prisma.comparison.findMany({
     take,
+    orderBy: { createdAt: "desc" },
     include: { category: true },
   })
   const productIds = [...new Set(rows.flatMap((r) => [r.productAId, r.productBId]))]

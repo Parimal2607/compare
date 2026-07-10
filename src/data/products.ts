@@ -3,7 +3,7 @@ import { parseProduct, parseProducts } from "./parse"
 import type { Product, Category } from "./types"
 
 export async function getProducts(): Promise<Product[]> {
-  const rows = await prisma.product.findMany({ include: { category: true } })
+  const rows = await prisma.product.findMany({ orderBy: { createdAt: "desc" }, include: { category: true } })
   return rows.map(parseProduct)
 }
 

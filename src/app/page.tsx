@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { getCategoryComparisonsMap, getComparisonsWithProducts, getComparisonCount } from "@/data/comparisons"
+import { getCategoryComparisonsMap, getLatestComparisonPerCategory, getComparisonCount } from "@/data/comparisons"
 import { getCategoryNames, getProductCount } from "@/data/products"
 import HeroSlider from "@/components/HeroSlider"
 import ComparisonCard from "@/components/ComparisonCard"
@@ -8,7 +8,7 @@ export const revalidate = 60
 
 export default async function Home() {
   const [slideData, categoryData, totalComparisons, categoryNames, productCount] = await Promise.all([
-    getComparisonsWithProducts(3),
+    getLatestComparisonPerCategory(),
     getCategoryComparisonsMap(4),
     getComparisonCount(),
     getCategoryNames(),
