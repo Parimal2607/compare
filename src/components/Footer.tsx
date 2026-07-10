@@ -10,7 +10,7 @@ export default function Footer() {
             <span className="text-sm font-semibold text-gray-600">CompareHub</span>
           </div>
           <p className="text-xs text-gray-400">
-            &copy; {new Date().getFullYear()} CompareHub. As an Amazon Associate we may earn from qualifying purchases.
+            &copy; {new Date().getFullYear()} CompareHub
           </p>
         </div>
       </div>
