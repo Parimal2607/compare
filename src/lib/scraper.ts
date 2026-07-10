@@ -9,185 +9,294 @@ export interface ScrapedProduct {
   specs: Record<string, string>
   pros: string[]
   cons: string[]
-}
-
-function extractJsonLd($: cheerio.CheerioAPI): Record<string, unknown> | null {
-  const scripts: string[] = []
-  $('script[type="application/ld+json"]').each((_, el) => {
-    const text = $(el).text()
-    scripts.push(text)
-  })
-  for (const text of scripts) {
-    try {
-      const data = JSON.parse(text)
-      if (data["@type"] === "Product" || data["@type"] === "SoftwareApplication") return data
-      if (data["@graph"]) {
-        for (const item of data["@graph"]) {
-          if (item["@type"] === "Product" || item["@type"] === "SoftwareApplication") return item
-        }
-      }
-    } catch { }
-  }
-  return null
-}
-
-function extractMeta($: cheerio.CheerioAPI, name: string): string | undefined {
-  return $(`meta[name="${name}"], meta[property="${name}"]`).attr("content")
+  allRatings: Record<string, string>
+  prices: Record<string, string>
+  allImages: string[]
+  allMeta: Record<string, string>
+  rawJsonLd: Record<string, unknown>[]
 }
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
 }
 
-function extractGeneric($: cheerio.CheerioAPI, url: string): ScrapedProduct {
-  const name =
-    extractMeta($, "og:title") ||
-    extractMeta($, "twitter:title") ||
-    $("h1").first().text().trim() ||
-    $("title").text().trim()
-
-  const description =
-    extractMeta($, "og:description") ||
-    extractMeta($, "description") ||
-    $('meta[name="description"]').attr("content") ||
-    $("p").first().text().trim() ||
-    ""
-
-  const image =
-    extractMeta($, "og:image") ||
-    extractMeta($, "twitter:image") ||
-    $("img[itemprop='image']").attr("src") ||
-    $("main img").first().attr("src") ||
-    ""
-
-  const specs: Record<string, string> = {}
-  $("th, dt").each((_, el) => {
-    const key = $(el).text().trim()
-    const val = $(el).next("td, dd").text().trim()
-    if (key && val && !key.includes("?")) specs[key] = val
+function extractAllJsonLd($: cheerio.CheerioAPI): Record<string, unknown>[] {
+  const results: Record<string, unknown>[] = []
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const data = JSON.parse($(el).text())
+      if (Array.isArray(data)) results.push(...data)
+      else results.push(data)
+    } catch { }
   })
+  return results
+}
 
-  const pros: string[] = []
-  const cons: string[] = []
-  $("ul li").each((_, el) => {
+function extractAllMeta($: cheerio.CheerioAPI): Record<string, string> {
+  const meta: Record<string, string> = {}
+  $("meta").each((_, el) => {
+    const name = $(el).attr("name") || $(el).attr("property") || ""
+    const content = $(el).attr("content") || ""
+    if (name && content) meta[name] = content
+  })
+  return meta
+}
+
+function extractAllImages($: cheerio.CheerioAPI): string[] {
+  const urls = new Set<string>()
+  $("img").each((_, el) => {
+    const src = $(el).attr("src") || $(el).attr("data-src") || ""
+    if (src.startsWith("http")) urls.add(src)
+  })
+  return [...urls]
+}
+
+function extractAllRatings($: cheerio.CheerioAPI): Record<string, string> {
+  const ratings: Record<string, string> = {}
+
+  // Extract all structured rating data
+  $('[itemprop="ratingValue"], [class*="rating"], [class*="stars"], .rate, .score').each((_, el) => {
     const text = $(el).text().trim()
-    if (!text || text.length < 3) return
-    if (/pro|advantage|good/i.test(text.slice(0, 10))) pros.push(text)
-    else if (/con|disadvantage|bad/i.test(text.slice(0, 15))) cons.push(text)
+    const parent = $(el).parent().text().replace(text, "").trim()
+    const label = $(el).closest("tr").find("th, td:first").text().trim() ||
+      $(el).prev("span, strong, label").text().trim() ||
+      $(el).closest("[class*='rating'], [class*='review']").find("h3, h4, strong").first().text().trim()
+    if (text && /^[\d.]+(\/[\d.]+)?$/.test(text)) {
+      const key = label || `rating_${Object.keys(ratings).length + 1}`
+      ratings[key] = text
+    }
   })
 
-  const price =
-    extractMeta($, "product:price:amount") ||
-    $('[itemprop="price"]').attr("content") ||
-    $(".price").first().text().trim() ||
-    ""
+  // Extract from highlighted rating boxes/badges
+  $(".rating-box, [class*='rating-val'], .review-score, .critic-score").each((_, el) => {
+    const text = $(el).text().trim()
+    const label = $(el).closest("[class*='review'], [class*='source'], [class*='site']").find("[class*='source'], [class*='name'], h4, strong").first().text().trim() ||
+      $(el).prevAll("[class*='source'], [class*='label']").first().text().trim()
+    if (text && /^[\d.]+(\/[\d.]+)?$/.test(text)) {
+      const key = label || `rating_${Object.keys(ratings).length + 1}`
+      ratings[key] = text
+    }
+  })
 
-  const ratingText =
-    extractMeta($, "product:rating:value") ||
-    $('[itemprop="ratingValue"]').attr("content") ||
-    ""
-  const rating = parseFloat(ratingText) || 0
-
-  return { name, description, image: image.startsWith("http") ? image : "", price, rating, specs, pros, cons }
+  return ratings
 }
 
-function extractSmartprix($: cheerio.CheerioAPI): ScrapedProduct {
-  const name = $("h1").first().text().trim()
-  const price = $(".price, [class*='price']").first().text().trim()
-  const description = extractMeta($, "description") || ""
-  const image = $(".product-img img, [class*='img'] img").first().attr("src") || ""
-  const rating = parseFloat($("[class*='rating']").first().text().trim()) || 0
+function extractAllPrices($: cheerio.CheerioAPI): Record<string, string> {
+  const prices: Record<string, string> = {}
 
+  // Find all price-like elements
+  $("[class*='price'], [itemprop='price'], .cost, .amount, [class*='offer'], [class*='deal']").each((_, el) => {
+    const text = $(el).text().trim()
+    const label = $(el).closest("tr, li, [class*='store'], [class*='retailer']").find("th, [class*='store'], [class*='seller'], [class*='source']").first().text().trim() ||
+      $(el).parent().find("[class*='label'], [class*='source'], .vendor, .retailer").first().text().trim() ||
+      `price_${Object.keys(prices).length + 1}`
+    if (text && /[$₹€£]\s*[\d,]+/.test(text)) {
+      prices[label || `price_${Object.keys(prices).length + 1}`] = text
+    }
+  })
+
+  return prices
+}
+
+function extractAllSpecs($: cheerio.CheerioAPI): Record<string, string> {
   const specs: Record<string, string> = {}
-  $("table tr, .specs li, [class*='spec'] tr").each((_, el) => {
-    const key = $(el).find("th, td:first, dt").text().trim()
-    const val = $(el).find("td:last, dd").text().trim()
+
+  // Extract from spec tables
+  $("table").each((_, table) => {
+    $(table).find("tr").each((_, row) => {
+      const cells = $(row).find("th, td")
+      if (cells.length >= 2) {
+        const key = $(cells[0]).text().trim()
+        const val = $(cells[1]).text().trim()
+        if (key && val && key.length < 100 && val.length < 200) specs[key] = val
+      }
+    })
+  })
+
+  // Extract from definition lists
+  $("dt").each((_, el) => {
+    const key = $(el).text().trim()
+    const val = $(el).next("dd").text().trim()
     if (key && val) specs[key] = val
   })
 
-  const pros: string[] = []
-  const cons: string[] = []
-  $("[class*='pro'] li, .good li, [class*='positive'] li").each((_, el) => {
-    const t = $(el).text().trim()
-    if (t) pros.push(t)
-  })
-  $("[class*='con'] li, .bad li, [class*='negative'] li").each((_, el) => {
-    const t = $(el).text().trim()
-    if (t) cons.push(t)
+  // Extract from spec-style lists
+  $("li, [class*='spec'], [class*='feature']").each((_, el) => {
+    const text = $(el).text().trim()
+    const colonIdx = text.indexOf(":")
+    const pipeIdx = text.indexOf("|")
+    const sepIdx = colonIdx > 0 ? colonIdx : (pipeIdx > 0 ? pipeIdx : -1)
+    if (sepIdx > 0 && sepIdx < 80) {
+      const key = text.slice(0, sepIdx).trim()
+      const val = text.slice(sepIdx + 1).trim()
+      if (key && val && !specs[key]) specs[key] = val
+    }
   })
 
-  return { name, description, image, price, rating, specs, pros, cons }
+  return specs
 }
 
-function extract91Mobiles($: cheerio.CheerioAPI): ScrapedProduct {
-  const name = $("h1").first().text().trim() || $(".product-name, [class*='title'] h1").text().trim()
-  const price = $(".price, [class*='price'], .prod-price").first().text().trim()
-  const description = extractMeta($, "description") || ""
-  const image = $(".prod-img img, [class*='gallery'] img").first().attr("src") || extractMeta($, "og:image") || ""
-  const rating = parseFloat($("[class*='rating'], .rating-box").first().text().trim()) || 0
-
-  const specs: Record<string, string> = {}
-  $(".specs table tr, .specification tr, [class*='spec'] tr, .key-specs li").each((_, el) => {
-    const key = $(el).find("td:first, th, dt, strong").text().trim()
-    const val = $(el).find("td:last, dd, span:last").text().trim()
-    if (key && val) specs[key] = val
-  })
-
+function extractProsCons($: cheerio.CheerioAPI): { pros: string[]; cons: string[] } {
   const pros: string[] = []
   const cons: string[] = []
-  $("[class*='pro'] li, .good li").each((_, el) => {
-    const t = $(el).text().trim()
-    if (t) pros.push(t)
-  })
-  $("[class*='con'] li, .bad li").each((_, el) => {
-    const t = $(el).text().trim()
-    if (t) cons.push(t)
+
+  // Find pro/con sections by heading
+  $("h2, h3, h4, strong, [class*='heading']").each((_, el) => {
+    const heading = $(el).text().trim().toLowerCase()
+    const list = $(el).nextAll("ul, ol, div").first()
+
+    if (/pro|advantage|good|positive|like/i.test(heading) && !/con|disadvantage/i.test(heading)) {
+      list.find("li, [class*='item'], [class*='point']").each((_, item) => {
+        const t = $(item).text().trim()
+        if (t && t.length > 3) pros.push(t)
+      })
+    }
+    if (/con|disadvantage|bad|negative|dislike|improvement/i.test(heading) && !/pro|advantage/i.test(heading)) {
+      list.find("li, [class*='item'], [class*='point']").each((_, item) => {
+        const t = $(item).text().trim()
+        if (t && t.length > 3) cons.push(t)
+      })
+    }
   })
 
-  return { name, description, image: image.startsWith("http") ? image : "", price, rating, specs, pros, cons }
+  // Find pro/con by class names
+  $("[class*='pros'] li, [class*='pro-list'] li, .good li, [class*='positive'] li, [class*='like'] li").each((_, el) => {
+    const t = $(el).text().trim()
+    if (t && t.length > 3 && !pros.includes(t)) pros.push(t)
+  })
+  $("[class*='cons'] li, [class*='con-list'] li, .bad li, [class*='negative'] li, [class*='dislike'] li").each((_, el) => {
+    const t = $(el).text().trim()
+    if (t && t.length > 3 && !cons.includes(t)) cons.push(t)
+  })
+
+  // Extract comparison rows with ✓/✗ ratings
+  $("tr").each((_, row) => {
+    const cells = $(row).find("td")
+    const label = $(row).find("th, td:first").text().trim()
+    if (cells.length <= 1 || !label) return
+
+    for (let i = 1; i < cells.length; i++) {
+      const text = $(cells[i]).text().trim()
+      if (text.includes("✓") || text.includes("✔") || text.includes("Yes") || text.includes("good") && text.length < 30) {
+        if (!pros.includes(label)) pros.push(label)
+      } else if (text.includes("✗") || text.includes("✘") || text.includes("No") || text.includes("bad") && text.length < 30) {
+        if (!cons.includes(label)) cons.push(label)
+      }
+    }
+  })
+
+  return { pros, cons }
 }
 
 export async function scrapeUrl(url: string): Promise<ScrapedProduct> {
-  const hostname = new URL(url).hostname.replace("www.", "")
-
   const res = await fetch(url, {
     headers: {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       Accept: "text/html,application/xhtml+xml",
     },
   })
-
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`)
 
   const html = await res.text()
   const $ = cheerio.load(html)
 
-  // Try JSON-LD first (most reliable)
-  const jsonld = extractJsonLd($)
-  if (jsonld) {
-    const name = (jsonld.name as string) || ""
-    const description = (jsonld.description as string) || ""
-    const image = (Array.isArray(jsonld.image) ? jsonld.image[0] : jsonld.image) as string || ""
-    const offers = jsonld.offers as Record<string, unknown> | undefined
-    const price = offers?.price?.toString() || (jsonld.price as string) || ""
-    const rating = jsonld.aggregateRating as Record<string, unknown> | undefined
-    const ratingValue = parseFloat(rating?.ratingValue as string) || 0
+  // Extract everything
+  const jsonlds = extractAllJsonLd($)
+  const allMeta = extractAllMeta($)
+  const allImages = extractAllImages($)
+  const allRatings = extractAllRatings($)
+  const allPrices = extractAllPrices($)
+  const specs = extractAllSpecs($)
+  const { pros, cons } = extractProsCons($)
 
-    const specs: Record<string, string> = {}
-    // Try to extract specs from the page even with JSON-LD
-    $("table tr, .specs tr").each((_, el) => {
-      const key = $(el).find("th, td:first").text().trim()
-      const val = $(el).find("td:last").text().trim()
-      if (key && val) specs[key] = val
-    })
-
-    return { name, description, image: image.startsWith("http") ? image : "", price: `$${price}`, rating: ratingValue, specs, pros: [], cons: [] }
+  // Name
+  let name = ""
+  if (jsonlds.length > 0) {
+    for (const j of jsonlds) {
+      if (j["@type"] === "Product" || j["@type"] === "SoftwareApplication") {
+        name = (j.name as string) || ""
+        if (name) break
+      }
+    }
   }
+  if (!name) name = allMeta["og:title"] || allMeta["twitter:title"] || $("h1").first().text().trim() || $("title").first().text().trim() || ""
 
-  // Site-specific extraction
-  if (hostname.includes("smartprix")) return extractSmartprix($)
-  if (hostname.includes("91mobiles")) return extract91Mobiles($)
+  // Description
+  let description = ""
+  if (jsonlds.length > 0) {
+    for (const j of jsonlds) {
+      if (j["@type"] === "Product" || j["@type"] === "SoftwareApplication") {
+        description = (j.description as string) || ""
+        if (description) break
+      }
+    }
+  }
+  if (!description) description = allMeta["og:description"] || allMeta["description"] || $('meta[name="description"]').attr("content") || ""
 
-  // Generic extraction
-  return extractGeneric($, url)
+  // Image
+  let image = ""
+  if (jsonlds.length > 0) {
+    for (const j of jsonlds) {
+      if (j["@type"] === "Product" || j["@type"] === "SoftwareApplication") {
+        const img = j.image
+        image = Array.isArray(img) ? img[0] as string : img as string
+        if (image) break
+      }
+    }
+  }
+  if (!image) image = allMeta["og:image"] || allMeta["twitter:image"] || allImages[0] || ""
+
+  // Price
+  let price = ""
+  if (jsonlds.length > 0) {
+    for (const j of jsonlds) {
+      if (j["@type"] === "Product") {
+        const offers = j.offers as Record<string, unknown> | undefined
+        if (offers) {
+          const p = (offers.price as string) || (offers.priceSpecification as Record<string, unknown>)?.price as string || ""
+          if (p) { price = `$${p}`; break }
+        }
+      }
+    }
+  }
+  if (!price && Object.keys(allPrices).length > 0) {
+    price = Object.values(allPrices)[0]
+  }
+  if (!price) price = allMeta["product:price:amount"] || $("[itemprop='price']").attr("content") || $(".price, [class*='price']").first().text().trim() || ""
+
+  // Rating
+  let rating = 0
+  if (jsonlds.length > 0) {
+    for (const j of jsonlds) {
+      if (j["@type"] === "Product") {
+        const agg = j.aggregateRating as Record<string, unknown> | undefined
+        if (agg) {
+          rating = parseFloat(agg.ratingValue as string) || 0
+          if (rating) break
+        }
+      }
+    }
+  }
+  if (!rating && Object.keys(allRatings).length > 0) {
+    const firstVal = Object.values(allRatings)[0]
+    const m = firstVal.match(/^([\d.]+)/)
+    if (m) rating = parseFloat(m[1])
+  }
+  if (!rating) rating = parseFloat(allMeta["product:rating:value"]) || 0
+
+  return {
+    name,
+    description,
+    image: image.startsWith("http") ? image : "",
+    price,
+    rating,
+    specs,
+    pros,
+    cons,
+    allRatings,
+    prices: allPrices,
+    allImages,
+    allMeta,
+    rawJsonLd: jsonlds,
+  }
 }

@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 
-
 interface Props {
   categories: { id: string; name: string }[]
 }
@@ -16,6 +15,11 @@ interface ScrapedData {
   specs: Record<string, string>
   pros: string[]
   cons: string[]
+  allRatings: Record<string, string>
+  prices: Record<string, string>
+  allImages: string[]
+  allMeta: Record<string, string>
+  rawJsonLd: Record<string, unknown>[]
 }
 
 export default function ImportTool({ categories }: Props) {
@@ -27,6 +31,7 @@ export default function ImportTool({ categories }: Props) {
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "")
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [showExtra, setShowExtra] = useState(false)
 
   async function handleScrape() {
     if (!url.trim()) return
@@ -101,7 +106,7 @@ export default function ImportTool({ categories }: Props) {
         <p className="text-gray-500 mb-6">{editable?.name} has been added.</p>
         <button
           onClick={() => { setUrl(""); setData(null); setEditable(null); setSaved(false) }}
-          className="rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-violet-700"
+          className="rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 transition-all"
         >
           Import Another
         </button>
@@ -199,10 +204,37 @@ export default function ImportTool({ categories }: Props) {
             />
           </div>
 
+          {Object.keys(editable.allRatings).length > 0 && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <h4 className="text-sm font-semibold text-amber-800 mb-2">Multi-Source Ratings Found</h4>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {Object.entries(editable.allRatings).map(([source, val]) => (
+                  <div key={source} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm border border-amber-100">
+                    <span className="text-gray-600">{source}</span>
+                    <span className="font-semibold text-amber-700">{val}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-amber-600 mt-2">These will be added to product specs</p>
+            </div>
+          )}
+
+          {Object.keys(editable.prices).length > 0 && (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+              <h4 className="text-sm font-semibold text-blue-800 mb-2">Prices from Multiple Sources</h4>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {Object.entries(editable.prices).map(([store, val]) => (
+                  <div key={store} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm border border-blue-100">
+                    <span className="text-gray-600">{store}</span>
+                    <span className="font-semibold text-blue-700">{val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Specs (key: value, one per line)
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Specs</label>
             <textarea
               value={Object.entries(editable.specs).map(([k, v]) => `${k}: ${v}`).join("\n")}
               onChange={(e) => {
@@ -213,7 +245,7 @@ export default function ImportTool({ categories }: Props) {
                 })
                 updateField("specs", specs)
               }}
-              rows={6}
+              rows={8}
               className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-violet-500 font-mono"
             />
           </div>
@@ -224,7 +256,7 @@ export default function ImportTool({ categories }: Props) {
               <textarea
                 value={editable.pros.join("\n")}
                 onChange={(e) => updateField("pros", e.target.value.split("\n").filter(Boolean))}
-                rows={4}
+                rows={5}
                 className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-violet-500"
               />
             </div>
@@ -233,16 +265,64 @@ export default function ImportTool({ categories }: Props) {
               <textarea
                 value={editable.cons.join("\n")}
                 onChange={(e) => updateField("cons", e.target.value.split("\n").filter(Boolean))}
-                rows={4}
+                rows={5}
                 className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-violet-500"
               />
             </div>
           </div>
 
+          {/* Collapsible extra data */}
+          <button
+            onClick={() => setShowExtra(!showExtra)}
+            className="text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors"
+          >
+            {showExtra ? "Hide" : "Show"} raw extracted data ({editable.allImages.length} images, {Object.keys(editable.allMeta).length} meta tags, {editable.rawJsonLd.length} JSON-LD blocks)
+          </button>
+
+          {showExtra && (
+            <div className="space-y-4 border-t border-gray-200 pt-4">
+              {editable.allImages.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">All Images ({editable.allImages.length})</h4>
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-48 overflow-y-auto">
+                    {editable.allImages.map((img, i) => (
+                      <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                        <img src={img} alt="" className="object-contain w-full h-full" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {editable.rawJsonLd.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Structured Data (JSON-LD)</h4>
+                  <pre className="max-h-48 overflow-y-auto rounded-xl bg-gray-50 border border-gray-200 p-4 text-xs text-gray-600 font-mono">
+                    {JSON.stringify(editable.rawJsonLd, null, 2)}
+                  </pre>
+                </div>
+              )}
+
+              {Object.keys(editable.allMeta).length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">All Meta Tags</h4>
+                  <div className="max-h-48 overflow-y-auto rounded-xl bg-gray-50 border border-gray-200 p-4">
+                    {Object.entries(editable.allMeta).map(([k, v]) => (
+                      <div key={k} className="flex gap-2 text-xs py-0.5 border-b border-gray-100 last:border-0">
+                        <span className="font-medium text-gray-500 shrink-0 w-48 truncate">{k}</span>
+                        <span className="text-gray-700 truncate">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button
               onClick={() => { setData(null); setEditable(null) }}
-              className="rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+              className="rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all"
             >
               Discard
             </button>
