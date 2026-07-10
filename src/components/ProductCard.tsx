@@ -1,5 +1,5 @@
 import Link from "next/link"
-import Image from "next/image"
+import SafeImage from "@/components/SafeImage"
 import { Product } from "@/data/types"
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -10,7 +10,7 @@ export default function ProductCard({ product }: { product: Product }) {
     >
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-violet-500 to-blue-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10" />
       <div className="relative h-48 overflow-hidden bg-gray-100">
-        <Image
+        <SafeImage
           src={product.image}
           alt={product.name}
           fill

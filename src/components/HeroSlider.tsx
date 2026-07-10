@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import Image from "next/image"
+import SafeImage from "@/components/SafeImage"
 import Link from "next/link"
 import type { Comparison, Product } from "@/data/types"
 
@@ -41,10 +41,10 @@ export default function HeroSlider({ slides }: { slides: SlideData[] }) {
         <div
           key={s.comparison.id}
           className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-            i === current ? "opacity-30 scale-100" : "opacity-0 scale-110"
+            i === current ? "opacity-80 scale-100" : "opacity-0 scale-110"
           }`}
         >
-          <Image
+          <SafeImage
             src={s.comparison.heroImage || s.productA?.heroImage || s.productA?.image || ""}
             alt={s.comparison.title}
             fill
@@ -55,8 +55,8 @@ export default function HeroSlider({ slides }: { slides: SlideData[] }) {
         </div>
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/30" />
-      <div className="absolute inset-0 bg-gradient-to-r from-gray-950/50 via-transparent to-gray-950/50" />
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-gray-950/10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-gray-950/30 via-transparent to-gray-950/30" />
 
       <div className="relative z-10 flex h-full items-center">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -68,8 +68,8 @@ export default function HeroSlider({ slides }: { slides: SlideData[] }) {
 
             <div className="mb-6 flex items-center gap-5">
               {slide.productA && (
-                <div className="relative h-24 w-24 bg-white overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl shadow-black/30 shrink-0">
-                  <Image
+                <div className="relative h-24 w-24 bg-white/10 overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl shadow-black/30 shrink-0">
+                  <SafeImage
                     src={slide.productA.heroImage || slide.productA.image || ""}
                     alt={slide.productA.name}
                     fill
@@ -82,8 +82,8 @@ export default function HeroSlider({ slides }: { slides: SlideData[] }) {
                 VS
               </span>
               {slide.productB && (
-                <div className="relative h-24 w-24 bg-white overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl shadow-black/30 shrink-0">
-                  <Image
+                <div className="relative h-24 w-24 bg-white/10 overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl shadow-black/30 shrink-0">
+                  <SafeImage
                     src={slide.productB.heroImage || slide.productB.image || ""}
                     alt={slide.productB.name}
                     fill
@@ -110,11 +110,11 @@ export default function HeroSlider({ slides }: { slides: SlideData[] }) {
               )}
             </div>
 
-            <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight">
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl leading-tight line-clamp-3">
               {slide.comparison.title}
             </h1>
 
-            <p className="mt-5 max-w-xl text-base text-white/50 leading-relaxed sm:text-lg">
+            <p className="mt-5 max-w-xl text-base text-white/60 leading-relaxed sm:text-lg line-clamp-3">
               {slide.comparison.description}
             </p>
 

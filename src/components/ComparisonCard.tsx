@@ -1,8 +1,6 @@
 import Link from "next/link"
-import Image from "next/image"
+import SafeImage from "@/components/SafeImage"
 import type { Comparison, Product } from "@/data/types"
-
-const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' fill='%23f3f4f6'%3E%3Crect width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' fill='%239ca3af' font-family='sans-serif' font-size='18' text-anchor='middle' dy='.3em'%3ECompare%3C/text%3E%3C/svg%3E"
 
 export default function ComparisonCard({
   comparison,
@@ -22,18 +20,18 @@ export default function ComparisonCard({
       <div className="relative h-40 overflow-hidden bg-gray-100">
         <div className="absolute inset-0 flex">
           <div className="relative w-1/2 overflow-hidden">
-            <Image
-              src={productA?.heroImage || productA?.image || PLACEHOLDER_IMAGE}
-              alt={productA?.name || comparison.productAId}
+            <SafeImage
+              src={productA?.heroImage || productA?.image || ""}
+              alt={productA?.name || "Product A"}
               fill
               className="object-contain transition-all duration-500 group-hover:scale-105"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
             />
           </div>
           <div className="relative w-1/2 overflow-hidden border-l border-white/10">
-            <Image
-              src={productB?.heroImage || productB?.image || PLACEHOLDER_IMAGE}
-              alt={productB?.name || comparison.productBId}
+            <SafeImage
+              src={productB?.heroImage || productB?.image || ""}
+              alt={productB?.name || "Product B"}
               fill
               className="object-contain transition-all duration-500 group-hover:scale-105"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
@@ -48,11 +46,11 @@ export default function ComparisonCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 z-10">
           <span className="rounded-lg bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-800 backdrop-blur-sm shadow-sm">
-            {productA?.name || comparison.productAId}
+            {productA?.name || "Product A"}
           </span>
           <span className="text-xs font-bold text-white/80">VS</span>
           <span className="rounded-lg bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-800 backdrop-blur-sm shadow-sm">
-            {productB?.name || comparison.productBId}
+            {productB?.name || "Product B"}
           </span>
         </div>
       </div>

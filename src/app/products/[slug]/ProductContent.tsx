@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import SafeImage from "@/components/SafeImage"
 import type { Product } from "@/data/types"
 import type { ReactNode } from "react"
 
@@ -24,7 +24,7 @@ export default function ProductContent({
 
       <div className="mb-8 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
         <div className="relative h-56 overflow-hidden sm:h-64">
-          <Image
+          <SafeImage
             src={product.heroImage || product.image}
             alt={product.name}
             fill
