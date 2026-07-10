@@ -38,7 +38,7 @@ export default function ProductGrid({
   const paged = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
 
   return (
-    <div>
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mb-10">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">Products</h1>
         <p className="mt-3 text-lg text-gray-500">Browse all reviewed products.</p>

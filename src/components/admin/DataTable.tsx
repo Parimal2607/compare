@@ -129,7 +129,7 @@ export default function DataTable<T extends Row>({
                       </td>
                     ))}
                     <td className="px-6 py-4 text-right">
-                      <Link href={`${editUrlPrefix}${item.id}`} className="rounded-lg px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50 transition-colors">Edit</Link>
+                      <Link href={`${editUrlPrefix}${item.id}/edit`} className="rounded-lg px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50 transition-colors">Edit</Link>
                       <form action={onDelete} className="inline ml-1">
                         <input type="hidden" name="id" value={item.id} />
                         <DeleteButton label="Delete" confirmMsg={deleteConfirmMsg} />

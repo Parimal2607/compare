@@ -57,7 +57,7 @@ export default function ComparisonForm({ categories, products, comparison, actio
       method: isUpdate ? "PUT" : "POST",
       body: fd,
     })
-    if (res.ok) router.refresh()
+    if (res.ok) router.push("/admin/comparisons")
     else alert("Error saving comparison")
   }
 

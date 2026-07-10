@@ -33,7 +33,7 @@ export default function CategoryComparisons({ groups }: { groups: CategoryGroup[
   }, [groups, search])
 
   return (
-    <div>
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mb-10">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">Categories</h1>
         <p className="mt-3 text-lg text-gray-500">Browse comparisons by category.</p>

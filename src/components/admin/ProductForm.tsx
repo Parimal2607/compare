@@ -49,7 +49,7 @@ export default function ProductForm({ categories, product, action }: Props) {
       method: isUpdate ? "PUT" : "POST",
       body: fd,
     })
-    if (res.ok) router.refresh()
+    if (res.ok) router.push("/admin/products")
     else alert("Error saving product")
   }
 
