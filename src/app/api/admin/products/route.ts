@@ -5,7 +5,7 @@ import { NextResponse } from "next/server"
 export async function POST(request: Request) {
   const fd = await request.formData()
   const name = (fd.get("name") as string).trim()
-  const slug = (fd.get("slug") as string).trim()
+  const slug = ((fd.get("slug") as string) || name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")).trim()
   const catId = fd.get("categoryId") as string
   const image = fd.get("image") as string
   const heroImage = fd.get("heroImage") as string
@@ -21,8 +21,7 @@ export async function POST(request: Request) {
   await prisma.product.create({
     data: { id, name, slug, image, heroImage: heroImage || null, description: desc, price, rating, categoryId: catId, specs, pros, cons, affiliateLink: affiliateLink || null },
   })
-  revalidatePath("/")
-  revalidatePath("/categories")
+  revalidatePath("/", "layout")
   revalidatePath("/admin/products")
   return NextResponse.json({ ok: true })
 }
@@ -31,7 +30,7 @@ export async function PUT(request: Request) {
   const fd = await request.formData()
   const id = fd.get("id") as string
   const name = (fd.get("name") as string).trim()
-  const slug = (fd.get("slug") as string).trim()
+  const slug = ((fd.get("slug") as string) || name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")).trim()
   const catId = fd.get("categoryId") as string
   const image = fd.get("image") as string
   const heroImage = fd.get("heroImage") as string
@@ -47,8 +46,7 @@ export async function PUT(request: Request) {
     where: { id },
     data: { name, slug, image, heroImage: heroImage || null, description: desc, price, rating, categoryId: catId, specs, pros, cons, affiliateLink: affiliateLink || null },
   })
-  revalidatePath("/")
-  revalidatePath("/categories")
+  revalidatePath("/", "layout")
   revalidatePath("/admin/products")
   return NextResponse.json({ ok: true })
 }

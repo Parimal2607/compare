@@ -65,8 +65,10 @@ export default function ImportTool({ categories }: Props) {
     setSaving(true)
     setError("")
     try {
+      const slug = editable.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
       const formData = new FormData()
       formData.set("name", editable.name)
+      formData.set("slug", slug)
       formData.set("description", editable.description)
       formData.set("image", editable.image)
       formData.set("price", editable.price)
