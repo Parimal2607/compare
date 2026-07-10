@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "play-lh.googleusercontent.com",
       },
+      {
+        protocol: "https",
+        hostname: "akm-img-a-in.tosshub.com",
+      },
     ],
   },
 }
