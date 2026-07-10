@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache"
 import Link from "next/link"
 import ComparisonForm, { ComparisonFormData } from "@/components/admin/ComparisonForm"
 import { DeleteButton } from "@/components/admin/DeleteButton"
+import DataTable from "@/components/admin/DataTable"
 
 async function deleteComp(formData: FormData) {
   "use server"
@@ -61,44 +62,51 @@ export default async function AdminComparisons({ searchParams }: { searchParams:
         </div>
       )}
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-100 bg-gray-50/50">
-              <th className="px-6 py-3 text-left font-semibold text-gray-600">Title</th>
-              <th className="px-6 py-3 text-left font-semibold text-gray-600">Category</th>
-              <th className="px-6 py-3 text-left font-semibold text-gray-600">Products</th>
-              <th className="px-6 py-3 text-right font-semibold text-gray-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {comparisons.map((c) => {
-              const pA = products.find((p) => p.id === c.productAId)
-              const pB = products.find((p) => p.id === c.productBId)
-              return (
-                <tr key={c.id} className="border-b border-gray-50 last:border-0">
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{c.title}</div>
-                    <div className="text-xs text-gray-400 font-mono mt-0.5">{c.slug}</div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500">{c.category?.name || c.categoryId}</td>
-                  <td className="px-6 py-4 text-gray-500 text-xs">
-                    {pA?.name || c.productAId} <span className="text-violet-500 font-bold">vs</span> {pB?.name || c.productBId}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <Link href={`/admin/comparisons?edit=${c.id}`} className="rounded-lg px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50 transition-colors">Edit</Link>
-                    <form action={deleteComp} className="inline ml-1">
-                      <input type="hidden" name="id" value={c.id} />
-                      <DeleteButton label="Delete" confirmMsg="Delete this comparison?" />
-                    </form>
-                  </td>
+      <DataTable
+        data={comparisons}
+        categories={categories}
+        searchFields={["title", "slug"]}
+        labelKey="title"
+        renderTable={(items) => (
+          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50/50">
+                  <th className="px-6 py-3 text-left font-semibold text-gray-600">Title</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-600">Category</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-600">Products</th>
+                  <th className="px-6 py-3 text-right font-semibold text-gray-600">Actions</th>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
-        {comparisons.length === 0 && <p className="px-6 py-10 text-center text-sm text-gray-400">No comparisons yet.</p>}
-      </div>
+              </thead>
+              <tbody>
+                {items.map((c) => {
+                  const pA = products.find((p) => p.id === c.productAId)
+                  const pB = products.find((p) => p.id === c.productBId)
+                  return (
+                    <tr key={c.id} className="border-b border-gray-50 last:border-0">
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900">{c.title}</div>
+                        <div className="text-xs text-gray-400 font-mono mt-0.5">{c.slug}</div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500">{c.category?.name || c.categoryId}</td>
+                      <td className="px-6 py-4 text-gray-500 text-xs">
+                        {pA?.name || c.productAId} <span className="text-violet-500 font-bold">vs</span> {pB?.name || c.productBId}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link href={`/admin/comparisons?edit=${c.id}`} className="rounded-lg px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50 transition-colors">Edit</Link>
+                        <form action={deleteComp} className="inline ml-1">
+                          <input type="hidden" name="id" value={c.id} />
+                          <DeleteButton label="Delete" confirmMsg="Delete this comparison?" />
+                        </form>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      />
     </div>
   )
 }

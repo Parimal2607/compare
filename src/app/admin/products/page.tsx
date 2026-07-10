@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import ProductForm, { ProductFormData } from "@/components/admin/ProductForm"
 import { DeleteButton } from "@/components/admin/DeleteButton"
+import DataTable from "@/components/admin/DataTable"
 import Link from "next/link"
 
 async function deleteProd(formData: FormData) {
@@ -50,38 +51,45 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
         </div>
       )}
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-100 bg-gray-50/50">
-              <th className="px-6 py-3 text-left font-semibold text-gray-600">Name</th>
-              <th className="px-6 py-3 text-left font-semibold text-gray-600">Category</th>
-              <th className="px-6 py-3 text-left font-semibold text-gray-600">Price</th>
-              <th className="px-6 py-3 text-right font-semibold text-gray-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p) => (
-              <tr key={p.id} className="border-b border-gray-50 last:border-0">
-                <td className="px-6 py-4">
-                  <div className="font-medium text-gray-900">{p.name}</div>
-                  <div className="text-xs text-gray-400 font-mono mt-0.5">{p.slug}</div>
-                </td>
-                <td className="px-6 py-4 text-gray-500">{p.category?.name || p.categoryId}</td>
-                <td className="px-6 py-4 text-gray-500">{p.price}</td>
-                <td className="px-6 py-4 text-right">
-                  <Link href={`/admin/products?edit=${p.id}`} className="rounded-lg px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50 transition-colors">Edit</Link>
-                  <form action={deleteProd} className="inline ml-1">
-                    <input type="hidden" name="id" value={p.id} />
-                    <DeleteButton label="Delete" confirmMsg="Delete?" />
-                  </form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {products.length === 0 && <p className="px-6 py-10 text-center text-sm text-gray-400">No products yet.</p>}
-      </div>
+      <DataTable
+        data={products}
+        categories={categories}
+        searchFields={["name", "slug"]}
+        labelKey="name"
+        renderTable={(items) => (
+          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50/50">
+                  <th className="px-6 py-3 text-left font-semibold text-gray-600">Name</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-600">Category</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-600">Price</th>
+                  <th className="px-6 py-3 text-right font-semibold text-gray-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((p) => (
+                  <tr key={p.id} className="border-b border-gray-50 last:border-0">
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-gray-900">{p.name}</div>
+                      <div className="text-xs text-gray-400 font-mono mt-0.5">{p.slug}</div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-500">{p.category?.name || p.categoryId}</td>
+                    <td className="px-6 py-4 text-gray-500">{p.price}</td>
+                    <td className="px-6 py-4 text-right">
+                      <Link href={`/admin/products?edit=${p.id}`} className="rounded-lg px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50 transition-colors">Edit</Link>
+                      <form action={deleteProd} className="inline ml-1">
+                        <input type="hidden" name="id" value={p.id} />
+                        <DeleteButton label="Delete" confirmMsg="Delete?" />
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      />
     </div>
   )
 }
