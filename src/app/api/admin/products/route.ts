@@ -2,10 +2,6 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { NextResponse } from "next/server"
 
-function safeJson(val: string, fallback: string = "[]"): string {
-  try { JSON.parse(val); return val } catch { return fallback }
-}
-
 export async function POST(request: Request) {
   const fd = await request.formData()
   const name = (fd.get("name") as string).trim()
@@ -17,9 +13,9 @@ export async function POST(request: Request) {
   const price = fd.get("price") as string
   const rating = parseFloat(fd.get("rating") as string)
   const affiliateLink = fd.get("affiliateLink") as string
-  const specs = safeJson(fd.get("specs") as string, "{}")
-  const pros = safeJson(fd.get("pros") as string)
-  const cons = safeJson(fd.get("cons") as string)
+  const specs = normalizeJson(fd.get("specs") as string, "{}")
+  const pros = normalizeJson(fd.get("pros") as string, "[]")
+  const cons = normalizeJson(fd.get("cons") as string, "[]")
 
   const id = slug
   await prisma.product.create({
@@ -43,9 +39,9 @@ export async function PUT(request: Request) {
   const price = fd.get("price") as string
   const rating = parseFloat(fd.get("rating") as string)
   const affiliateLink = fd.get("affiliateLink") as string
-  const specs = safeJson(fd.get("specs") as string, "{}")
-  const pros = safeJson(fd.get("pros") as string)
-  const cons = safeJson(fd.get("cons") as string)
+  const specs = normalizeJson(fd.get("specs") as string, "{}")
+  const pros = normalizeJson(fd.get("pros") as string, "[]")
+  const cons = normalizeJson(fd.get("cons") as string, "[]")
 
   await prisma.product.update({
     where: { id },
@@ -55,4 +51,13 @@ export async function PUT(request: Request) {
   revalidatePath("/categories")
   revalidatePath("/admin/products")
   return NextResponse.json({ ok: true })
+}
+
+function normalizeJson(val: string, fallback: string): string {
+  let parsed: unknown
+  try { parsed = JSON.parse(val) } catch { return fallback }
+  if (fallback === "{}" && Array.isArray(parsed)) {
+    return JSON.stringify(Object.fromEntries(parsed.filter(([k]: [string, string]) => k?.trim())))
+  }
+  return JSON.stringify(parsed)
 }
