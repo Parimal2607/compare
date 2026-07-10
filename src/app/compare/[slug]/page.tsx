@@ -2,6 +2,7 @@ import { getComparisonBySlugWithProducts, getComparisons } from "@/data/comparis
 import CompareContent from "./CompareContent"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { productSchema } from "@/lib/schema"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -29,5 +30,20 @@ export default async function ComparePage({ params }: Props) {
   const result = await getComparisonBySlugWithProducts(slug)
   if (!result) notFound()
 
-  return <CompareContent comparison={result.comparison} productA={result.productA} productB={result.productB} />
+  const schemas = [result.productA, result.productB]
+    .filter(Boolean)
+    .map((p) => productSchema(p!))
+
+  return (
+    <>
+      {schemas.map((s, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
+        />
+      ))}
+      <CompareContent comparison={result.comparison} productA={result.productA} productB={result.productB} />
+    </>
+  )
 }

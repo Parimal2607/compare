@@ -4,6 +4,7 @@ import ComparisonCard from "@/components/ComparisonCard"
 import ProductContent from "./ProductContent"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { productSchema } from "@/lib/schema"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -34,10 +35,17 @@ export default async function ProductPage({ params }: Props) {
   const relatedComparisons = await getComparionsByProductId(product.id)
   const productMap = relatedComparisons.length > 0 ? await getComparisonsWithProductMap(relatedComparisons) : new Map()
 
+  const pSchema = productSchema(product)
+
   return (
-    <ProductContent
-      product={product}
-      relatedComparisons={
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pSchema) }}
+      />
+      <ProductContent
+        product={product}
+        relatedComparisons={
         relatedComparisons.length > 0 ? (
           <section>
             <h2 className="mb-6 text-2xl font-bold text-gray-900">Related Comparisons</h2>
@@ -58,5 +66,6 @@ export default async function ProductPage({ params }: Props) {
         ) : null
       }
     />
+    </>
   )
 }

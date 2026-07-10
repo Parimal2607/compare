@@ -3,6 +3,7 @@ import { getCategoryComparisonsMap, getLatestComparisonPerCategory, getCompariso
 import { getCategoryNames, getProductCount } from "@/data/products"
 import HeroSlider from "@/components/HeroSlider"
 import ComparisonCard from "@/components/ComparisonCard"
+import { websiteSchema } from "@/lib/schema"
 
 export const revalidate = 60
 
@@ -15,8 +16,14 @@ export default async function Home() {
     getProductCount(),
   ])
 
+  const wsSchema = websiteSchema()
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(wsSchema) }}
+      />
       <HeroSlider slides={slideData} />
 
       <section className="border-b border-gray-100 bg-white">
