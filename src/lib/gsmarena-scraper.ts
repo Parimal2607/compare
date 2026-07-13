@@ -52,24 +52,31 @@ function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms))
 }
 
-async function retryFetch(url: string, retries = 2): Promise<Response | null> {
+async function retryFetch(url: string, retries = 2): Promise<{ res: Response } | { error: string; status?: number }> {
   for (let i = 0; i <= retries; i++) {
     try {
       const res = await fetch(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.5",
         },
       })
-      if (res.ok) return res
-      if (res.status === 429) {
-        await delay(3000 * (i + 1))
+      if (res.ok) return { res }
+      if (res.status === 429 || res.status === 403 || res.status >= 500) {
+        if (i < retries) await delay(3000 * (i + 1))
         continue
       }
-    } catch {
-      if (i < retries) await delay(2000 * (i + 1))
+      return { error: `HTTP ${res.status}`, status: res.status }
+    } catch (err) {
+      if (i < retries) {
+        await delay(2000 * (i + 1))
+        continue
+      }
+      return { error: String(err) }
     }
   }
-  return null
+  return { error: "All retries exhausted" }
 }
 
 export interface GsmarenaPhoneSource {
@@ -90,10 +97,10 @@ export async function listBrandPhones(brandId: number): Promise<GsmarenaPhoneSou
     const url = page === 1
       ? `https://www.gsmarena.com/${brandSlug}-phones-${brandId}.php`
       : `https://www.gsmarena.com/${brandSlug}-phones-f-${brandId}-0-p${page}.php`
-    const res = await retryFetch(url)
-    if (!res) break
+    const fetched = await retryFetch(url)
+    if ("error" in fetched) break
 
-    const html = await res.text()
+    const html = await fetched.res.text()
     const $ = cheerio.load(html)
     const items = $(".makers ul li a")
 
@@ -143,10 +150,10 @@ export async function scrapeGsmarenaPhone(url: string): Promise<{
   sourceUrl: string
 } | null> {
   try {
-    const res = await retryFetch(url)
-    if (!res) return null
+    const fetched = await retryFetch(url)
+    if ("error" in fetched) return null
 
-    const html = await res.text()
+    const html = await fetched.res.text()
     const $ = cheerio.load(html)
 
     const name = $('h1[data-spec="modelname"]').text().trim() || $("h1").first().text().trim() || ""
