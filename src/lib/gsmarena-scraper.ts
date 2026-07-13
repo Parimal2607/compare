@@ -152,7 +152,13 @@ export async function scrapeGsmarenaPhone(url: string): Promise<{
 } | null> {
   try {
     const fetched = await retryFetch(url)
-    if ("error" in fetched) return null
+    if ("error" in fetched) {
+      if (typeof process !== "undefined" && process.env?.NODE_ENV !== "production") {
+        // eslint-disable-next-line no-console
+        console.log(`scrapeGsmarenaPhone fetch error: ${fetched.error}${fetched.status ? ` (status ${fetched.status})` : ""} for ${url}`)
+      }
+      return null
+    }
 
     const html = await fetched.res.text()
     const $ = cheerio.load(html)
@@ -339,9 +345,14 @@ async function processPhone(
       return null
     }
 
+    log.push(`Fetching ${phone.specUrl}`)
     const scraped = await scrapeGsmarenaPhone(phone.specUrl)
-    if (!scraped || !scraped.name) {
-      log.push(`Scrape failed for ${phone.slug}`)
+    if (!scraped) {
+      log.push(`Scrape returned null for ${phone.slug} (${phone.specUrl})`)
+      return null
+    }
+    if (!scraped.name) {
+      log.push(`Scrape got empty name for ${phone.slug} — HTML may have unexpected structure (${phone.specUrl})`)
       return null
     }
 
@@ -406,6 +417,9 @@ export async function autoFetchBrandProducts(
   if (phones.length === 0) return { products: [], log }
 
   const recent = phones.slice(0, batchSize)
+
+  // Cooldown before scraping spec pages to avoid rate limiting
+  await delay(2000)
 
   for (const phone of recent) {
     const result = await processPhone(phone, category, log)
