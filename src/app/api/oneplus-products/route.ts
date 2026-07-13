@@ -10,9 +10,9 @@ export async function GET(request: Request) {
 
   if (debug) {
     const phones = await listBrandPhones(95)
-    const first10 = phones.slice(0, 3)
+    const first3 = phones.slice(0, 3)
     const scraped: unknown[] = []
-    for (const phone of first10) {
+    for (const phone of first3) {
       const result = await scrapeGsmarenaPhone(phone.specUrl)
       scraped.push({ phoneName: phone.name, result: result ? { name: result.name, specs: Object.keys(result.specs) } : null })
     }

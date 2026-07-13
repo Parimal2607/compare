@@ -5,6 +5,6 @@ export const getCachedOnePlusProducts = unstable_cache(
   async () => {
     return autoFetchOnePlusProducts()
   },
-  ["oneplus-products"],
-  { revalidate: 43200, tags: ["oneplus"] }
+  ["oneplus-products-v2"],
+  { revalidate: 43200, tags: ["oneplus-products"] }
 )
