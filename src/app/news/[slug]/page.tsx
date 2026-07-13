@@ -4,22 +4,44 @@ import type { Metadata } from "next"
 import type { NewsArticle } from "@/lib/news"
 import { getCachedNews } from "@/lib/get-cached-news"
 import { getNewsFromDb } from "@/lib/news"
+import { prisma } from "@/lib/prisma"
 import { newsArticleSchema } from "@/lib/schema"
 import { siteUrl } from "@/lib/site-url"
+
+export const dynamic = "force-dynamic"
 
 interface Props {
   params: Promise<{ slug: string }>
 }
 
 async function lookupArticle(slug: string): Promise<NewsArticle | null> {
-  let articles: NewsArticle[] = []
-  try { articles = await getCachedNews() } catch {}
-  let article = articles.find((a) => a.slug === slug)
-  if (!article) {
-    articles = await getNewsFromDb()
-    article = articles.find((a) => a.slug === slug)
-  }
-  return article || null
+  // 1. Try cached news
+  try {
+    const articles = await getCachedNews()
+    const found = articles.find((a) => a.slug === slug)
+    if (found) return found
+  } catch {}
+
+  // 2. Try DB directly (in case article fell out of top-50)
+  try {
+    const row = await prisma.newsArticle.findUnique({ where: { slug } })
+    if (row) {
+      return {
+        slug: row.slug,
+        title: row.title,
+        excerpt: row.excerpt,
+        content: row.content,
+        image: row.image || "",
+        source: row.source,
+        sourceUrl: row.sourceUrl,
+        author: row.author || "",
+        published: row.published.toISOString(),
+        categories: [],
+      }
+    }
+  } catch {}
+
+  return null
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
