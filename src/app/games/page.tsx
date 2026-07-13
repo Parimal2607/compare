@@ -47,7 +47,7 @@ export default function GamesPage() {
             href="/games/spin-wheel"
             className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-100/50"
           >
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-2xl shadow-lg shadow-violet-200">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-600 text-2xl shadow-lg shadow-violet-200">
               🎡
             </div>
             <h2 className="text-xl font-bold text-gray-900 group-hover:text-violet-600 transition-colors">Spin the Wheel</h2>
@@ -66,7 +66,7 @@ export default function GamesPage() {
             href="/games/tic-tac-toe"
             className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-100/50"
           >
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-2xl shadow-lg shadow-blue-200">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-2xl shadow-lg shadow-blue-200">
               ✕
             </div>
             <h2 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">Tic-Tac-Toe</h2>

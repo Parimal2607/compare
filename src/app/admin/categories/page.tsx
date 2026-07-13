@@ -69,7 +69,7 @@ export default async function AdminCategories() {
         <form action={create} className="flex gap-3">
           <input name="name" placeholder="Category name" required
             className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100" />
-          <button type="submit" className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all">
+          <button type="submit" className="rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700 transition-all">
             Add
           </button>
         </form>

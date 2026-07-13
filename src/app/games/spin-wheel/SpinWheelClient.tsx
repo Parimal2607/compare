@@ -167,7 +167,7 @@ export default function SpinWheelClient({ products }: { products: { name: string
         <button
           onClick={spin}
           disabled={spinning || options.length < 2}
-          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
+          className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
         >
           {spinning ? "Spinning..." : "Spin the Wheel!"}
         </button>

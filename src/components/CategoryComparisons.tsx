@@ -57,10 +57,9 @@ export default function CategoryComparisons({ groups }: { groups: CategoryGroup[
         <div className="space-y-16">
           {filtered.map((group) => (
             <section key={group.categorySlug} id={group.categorySlug}>
-              <div className="mb-8 flex items-center gap-4">
-                <div className="h-px flex-1 bg-gradient-to-r from-violet-200/50 to-transparent" />
+              <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900">{group.categoryName}</h2>
-                <div className="h-px flex-1 bg-gradient-to-l from-blue-200/50 to-transparent" />
+                <div className="mt-2 border-t border-gray-100" />
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -21,10 +21,7 @@ export default function NewsSidebar() {
   return (
     <aside className="w-full lg:w-80 shrink-0">
       <div className="sticky top-24 space-y-4 p-4 pt-2">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">📡</span>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500">Tech News</h2>
-        </div>
+        <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500">Tech News</h2>
 
         {loading ? (
           <div className="space-y-3">
@@ -47,11 +44,11 @@ export default function NewsSidebar() {
               >
                 <div className="flex gap-3">
                   {article.image && (
-                    <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                    <div className="w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-sm ring-1 ring-gray-100 transition-all duration-300 group-hover:shadow-md group-hover:ring-violet-200">
                       <img
                         src={article.image}
                         alt=""
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
                         loading="lazy"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
                       />

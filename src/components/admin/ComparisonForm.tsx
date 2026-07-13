@@ -179,7 +179,7 @@ export default function ComparisonForm({ categories, products, comparison, actio
       </div>
 
       <div className="flex justify-end pt-2">
-        <button type="submit" className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all">
+        <button type="submit" className="rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700 transition-all">
           {isUpdate ? "Update Comparison" : "Create Comparison"}
         </button>
       </div>

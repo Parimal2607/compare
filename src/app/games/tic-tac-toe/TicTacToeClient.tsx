@@ -223,7 +223,7 @@ export default function TicTacToeClient({ products }: { products: PhoneOption[] 
           <button
             onClick={goToPickSide}
             disabled={!phoneA || !phoneB}
-            className="rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             Next: Choose Your Side
           </button>
@@ -299,7 +299,7 @@ export default function TicTacToeClient({ products }: { products: PhoneOption[] 
           <div className="mt-8 flex justify-center gap-4">
             {winner && (
               <button onClick={playAgain}
-                className="rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+                className="rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700 transition-all active:scale-[0.98]">
                 Play Again
               </button>
             )}

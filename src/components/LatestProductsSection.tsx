@@ -36,20 +36,15 @@ export default function LatestProductsSection({ products }: { products: Product[
   if (products.length === 0) return null
 
   return (
-    <section className="bg-gray-50 py-16">
+    <section className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 text-center">
-          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-4 py-1 text-xs font-medium text-violet-700">
-            Latest
-          </div>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Latest Products
-          </h2>
-          <p className="mt-2 text-gray-500">Newly added products with full specifications</p>
-        </div>
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-center">
+          Latest Products
+        </h2>
+        <p className="mt-2 text-gray-500 text-center">Newly added products with full specifications</p>
 
         {latest && (
-          <div className="mb-12 rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="mt-10 mb-14 rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
             <div className="grid sm:grid-cols-5">
               <div className="relative h-56 sm:h-full sm:col-span-2 bg-gray-50">
                 <SafeImage
@@ -72,18 +67,20 @@ export default function LatestProductsSection({ products }: { products: Product[
                 </Link>
                 <div className="mt-3 flex flex-wrap items-center gap-4">
                   <span className="text-2xl font-bold text-gray-900">{latest.price}</span>
-                  <span className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-600">
-                    {latest.rating}
-                    <svg className="h-4 w-4 fill-amber-400" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  </span>
+                  {latest.rating != null && (
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-600">
+                      {latest.rating}
+                      <svg className="h-4 w-4 fill-amber-400" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    </span>
+                  )}
                 </div>
                 <p className="mt-4 text-gray-500 leading-relaxed line-clamp-3">{latest.description}</p>
                 <div className="mt-6">
                   <Link
                     href={`/products/${latest.slug}`}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all"
+                    className="inline-flex h-10 items-center gap-1.5 rounded-full bg-violet-600 px-5 text-sm font-semibold text-white shadow-sm transition-all duration-500 hover:bg-violet-700 hover:shadow-md active:scale-[0.98]"
                   >
                     View Details
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -120,7 +117,7 @@ export default function LatestProductsSection({ products }: { products: Product[
                 <Link
                   key={product.id}
                   href={`/products/${product.slug}`}
-                  className="group relative block overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                  className="group relative block overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-md"
                 >
                   <div className="relative h-36 overflow-hidden bg-gray-50">
                     <SafeImage
@@ -138,7 +135,9 @@ export default function LatestProductsSection({ products }: { products: Product[
                     </h3>
                     <div className="mt-2 flex items-center justify-between">
                       <span className="text-sm font-bold text-gray-900">{product.price}</span>
-                      <span className="text-xs font-medium text-amber-600">{product.rating}</span>
+                      {product.rating != null && (
+                        <span className="text-xs font-medium text-amber-600">{product.rating}</span>
+                      )}
                     </div>
                   </div>
                 </Link>

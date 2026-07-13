@@ -8,7 +8,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="w-64 shrink-0 border-r border-gray-200 bg-white p-6">
         <Link href="/admin" className="mb-8 block text-xl font-bold tracking-tight text-gray-900">
           CompareHub
-          <span className="ml-1.5 rounded-md bg-gradient-to-r from-violet-600 to-blue-500 px-2 py-0.5 text-[10px] font-semibold text-white align-middle">Admin</span>
+          <span className="ml-1.5 rounded-md bg-violet-600 px-2 py-0.5 text-[10px] font-semibold text-white align-middle">Admin</span>
         </Link>
         <nav className="space-y-1">
           <NavItem href="/admin" label="Dashboard" />

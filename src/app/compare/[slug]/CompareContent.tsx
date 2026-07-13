@@ -29,9 +29,9 @@ export default function CompareContent({
       </nav>
 
       <div className="mb-10">
-        <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 mb-3">
-          {comparison.category}
-        </span>
+          <span className="inline-flex items-center rounded-full border border-violet-100 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 mb-3">
+            {comparison.category}
+          </span>
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">{comparison.title}</h1>
         <p className="mt-4 text-lg text-gray-500 max-w-3xl">{comparison.description}</p>
       </div>
@@ -66,14 +66,14 @@ export default function CompareContent({
       <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm sm:p-10">
         <h2 className="text-2xl font-bold text-gray-900">Summary</h2>
         <p className="mt-4 text-base text-gray-600 leading-relaxed">{comparison.summary}</p>
-        <div className="my-8 h-px bg-gradient-to-r from-violet-200/50 via-blue-200/50 to-transparent" />
+        <div className="my-8 border-t border-gray-100" />
         <h3 className="text-xl font-bold text-gray-900">Verdict</h3>
         <p className="mt-4 text-base text-gray-600 leading-relaxed">{comparison.verdict}</p>
         <div className="mt-8 flex flex-wrap gap-4">
           {productA && (
             <Link
               href={`/products/${productA.slug}`}
-              className="inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-500 px-6 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+              className="inline-flex h-11 items-center gap-2 rounded-xl bg-violet-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-violet-700 hover:shadow-md active:scale-[0.98]"
             >
               View {productA.name} Details
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

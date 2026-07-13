@@ -26,13 +26,13 @@ export default function ComparisonTable({
           onClick={() => setActiveTab(0)}
           className={`p-4 text-center text-sm font-semibold transition-all duration-200 ${
             activeTab === 0
-              ? "bg-gradient-to-r from-violet-50 to-blue-50 text-violet-700"
+              ? "bg-violet-50 text-violet-700"
               : "bg-white text-gray-600 hover:bg-gray-50"
           }`}
         >
           {productA.name}
           {comparison.winnerIndex === 0 && (
-            <span className="ml-1.5 inline-flex items-center gap-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+            <span className="ml-1.5 inline-flex items-center gap-0.5 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
               WINNER
             </span>
           )}
@@ -41,13 +41,13 @@ export default function ComparisonTable({
           onClick={() => setActiveTab(1)}
           className={`p-4 text-center text-sm font-semibold transition-all duration-200 ${
             activeTab === 1
-              ? "bg-gradient-to-r from-violet-50 to-blue-50 text-violet-700"
+              ? "bg-violet-50 text-violet-700"
               : "bg-white text-gray-600 hover:bg-gray-50"
           }`}
         >
           {productB.name}
           {comparison.winnerIndex === 1 && (
-            <span className="ml-1.5 inline-flex items-center gap-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+            <span className="ml-1.5 inline-flex items-center gap-0.5 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
               WINNER
             </span>
           )}
@@ -57,14 +57,14 @@ export default function ComparisonTable({
         <div className="border-r border-gray-50 bg-gray-50/50 p-4 text-sm font-medium text-gray-700">Price</div>
         <div
           className={`border-r border-gray-50 p-4 text-center text-sm ${
-            activeTab === 0 ? "bg-gradient-to-r from-violet-50/50 to-blue-50/50" : ""
+            activeTab === 0 ? "bg-violet-50/40" : ""
           }`}
         >
           <span className="font-semibold text-gray-900">{productA.price}</span>
         </div>
         <div
           className={`p-4 text-center text-sm ${
-            activeTab === 1 ? "bg-gradient-to-r from-violet-50/50 to-blue-50/50" : ""
+            activeTab === 1 ? "bg-violet-50/40" : ""
           }`}
         >
           <span className="font-semibold text-gray-900">{productB.price}</span>
@@ -75,14 +75,14 @@ export default function ComparisonTable({
           <div className="border-r border-gray-50 bg-gray-50/50 p-4 text-sm font-medium text-gray-700">{key}</div>
           <div
             className={`border-r border-gray-50 p-4 text-center text-sm text-gray-600 ${
-              activeTab === 0 ? "bg-gradient-to-r from-violet-50/50 to-blue-50/50" : ""
+              activeTab === 0 ? "bg-violet-50/40" : ""
             }`}
           >
             {productA.specs[key] || "-"}
           </div>
           <div
             className={`p-4 text-center text-sm text-gray-600 ${
-              activeTab === 1 ? "bg-gradient-to-r from-violet-50/50 to-blue-50/50" : ""
+              activeTab === 1 ? "bg-violet-50/40" : ""
             }`}
           >
             {productB.specs[key] || "-"}
