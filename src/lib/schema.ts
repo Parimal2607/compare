@@ -1,7 +1,4 @@
-function siteUrl() {
-  const url = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) || "http://localhost:3000"
-  return url.replace(/\/+$/, "")
-}
+import { siteUrl } from "./site-url"
 
 export function websiteSchema() {
   return {
@@ -51,5 +48,24 @@ export function productSchema(product: {
         ratingCount: Math.round(rating * 20),
       },
     } : {}),
+  }
+}
+
+export function gameSchema(game: {
+  name: string
+  description: string
+  url: string
+  image?: string
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: game.name,
+    description: game.description,
+    url: game.url,
+    applicationCategory: "GameApplication",
+    operatingSystem: "Any",
+    browserRequirements: "Requires JavaScript",
+    ...(game.image ? { image: game.image } : {}),
   }
 }
