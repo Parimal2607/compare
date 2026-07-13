@@ -153,13 +153,7 @@ export async function scrapeGsmarenaPhone(url: string): Promise<{
 } | null> {
   try {
     const fetched = await retryFetch(url)
-    if ("error" in fetched) {
-      if (typeof process !== "undefined" && process.env?.NODE_ENV !== "production") {
-        // eslint-disable-next-line no-console
-        console.log(`scrapeGsmarenaPhone fetch error: ${fetched.error}${fetched.status ? ` (status ${fetched.status})` : ""} for ${url}`)
-      }
-      return null
-    }
+    if ("error" in fetched) return null
 
     const html = await fetched.res.text()
     const $ = cheerio.load(html)
