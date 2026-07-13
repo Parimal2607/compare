@@ -25,7 +25,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <p className="mt-1 text-sm text-gray-500 line-clamp-2">{product.description}</p>
         <div className="mt-4 flex items-center justify-between border-t border-gray-50 pt-4">
           <span className="text-lg font-bold text-gray-900">{product.price}</span>
-          {product.rating != null && (
+          {product.rating != null && product.rating > 0 && (
             <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-sm font-medium text-amber-600">
               {product.rating}
               <svg className="h-3.5 w-3.5 fill-amber-400" viewBox="0 0 20 20">
