@@ -3,7 +3,7 @@ import { generateDescription, rephrasePros, rephraseCons } from "./rewrite"
 import { prisma } from "./prisma"
 import type { Product } from "@/data/types"
 
-const GSMARENA_OPPO_BRANDS: Record<string, number> = {
+const GSMARENA_BRANDS: Record<string, number> = {
   oneplus: 95,
   samsung: 9,
   apple: 48,
@@ -11,6 +11,7 @@ const GSMARENA_OPPO_BRANDS: Record<string, number> = {
   oppo: 82,
   vivo: 98,
   realme: 118,
+  motorola: 4,
 }
 
 const SPEC_KEY_MAP: Record<string, string> = {
@@ -88,7 +89,7 @@ export interface GsmarenaPhoneSource {
 }
 
 export async function listBrandPhones(brandId: number): Promise<GsmarenaPhoneSource[]> {
-  const brandSlug = Object.entries(GSMARENA_OPPO_BRANDS).find(([, id]) => id === brandId)?.[0] || `brand-${brandId}`
+  const brandSlug = Object.entries(GSMARENA_BRANDS).find(([, id]) => id === brandId)?.[0] || `brand-${brandId}`
   const phones: GsmarenaPhoneSource[] = []
   let page = 1
   let hasMore = true
@@ -307,78 +308,125 @@ export async function scrapeGsmarenaPhone(url: string): Promise<{
   }
 }
 
-export async function autoFetchOnePlusProducts(): Promise<{ products: Product[]; log: string[] }> {
+export async function listIqooPhones(): Promise<GsmarenaPhoneSource[]> {
+  const allVivo = await listBrandPhones(98)
+  return allVivo.filter((p) => p.name.toLowerCase().includes("iqoo") || p.name.toLowerCase().includes("iQOO"))
+}
+
+async function ensureCategory(brandName: string, log: string[]): Promise<{ id: string; name: string }> {
+  let category = await prisma.category.findFirst({ where: { name: brandName } })
+  if (!category) {
+    const slug = brandName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || brandName.toLowerCase()
+    category = await prisma.category.create({
+      data: { id: slug, name: brandName, slug },
+    })
+    log.push(`Created ${brandName} category`)
+  } else {
+    log.push(`Found existing ${brandName} category`)
+  }
+  return { id: category.id, name: category.name }
+}
+
+async function processPhone(
+  phone: GsmarenaPhoneSource,
+  category: { id: string; name: string },
+  log: string[],
+): Promise<Product | null> {
+  try {
+    const existing = await prisma.product.findUnique({ where: { slug: phone.slug } })
+    if (existing) {
+      log.push(`Skipped ${phone.slug} (exists)`)
+      return null
+    }
+
+    const scraped = await scrapeGsmarenaPhone(phone.specUrl)
+    if (!scraped || !scraped.name) {
+      log.push(`Scrape failed for ${phone.slug}`)
+      return null
+    }
+
+    const productData = {
+      id: phone.slug,
+      slug: phone.slug,
+      name: scraped.name,
+      image: scraped.image,
+      description: scraped.description,
+      price: scraped.price || "Price not available",
+      rating: scraped.rating || 0,
+      categoryId: category.id,
+      specs: JSON.stringify(scraped.specs),
+      pros: JSON.stringify(scraped.pros),
+      cons: JSON.stringify(scraped.cons),
+      sourceUrl: scraped.sourceUrl,
+    }
+
+    await prisma.product.create({ data: productData })
+
+    const saved: Product = {
+      id: phone.slug,
+      name: scraped.name,
+      slug: phone.slug,
+      image: scraped.image,
+      description: scraped.description,
+      price: scraped.price || "Price not available",
+      rating: scraped.rating || 0,
+      category: category.name,
+      categoryId: category.id,
+      specs: scraped.specs,
+      pros: scraped.pros,
+      cons: scraped.cons,
+      sourceUrl: scraped.sourceUrl,
+    }
+    log.push(`Created ${scraped.name} (${phone.slug})`)
+    return saved
+  } catch (err) {
+    log.push(`Error for ${phone.slug}: ${String(err)}`)
+    return null
+  }
+}
+
+export async function autoFetchBrandProducts(
+  brandName: string,
+  brandId: number,
+  batchSize = 3,
+): Promise<{ products: Product[]; log: string[] }> {
   const log: string[] = []
   const saved: Product[] = []
 
-  let category = await prisma.category.findFirst({ where: { name: "OnePlus" } })
-  if (!category) {
-    category = await prisma.category.create({
-      data: { id: "oneplus", name: "OnePlus", slug: "oneplus" },
-    })
-    log.push("Created OnePlus category")
+  const category = await ensureCategory(brandName, log)
+
+  let phones: GsmarenaPhoneSource[]
+  if (brandName.toLowerCase() === "iqoo") {
+    phones = await listIqooPhones()
   } else {
-    log.push("Found existing OnePlus category")
+    phones = await listBrandPhones(brandId)
   }
 
-  const phones = await listBrandPhones(95)
   log.push(`Found ${phones.length} phones from GSMArena`)
   if (phones.length === 0) return { products: [], log }
 
-  // Process up to 3 per run (Vercel 10s timeout)
-  const recent = phones.slice(0, 3)
+  const recent = phones.slice(0, batchSize)
 
   for (const phone of recent) {
-    try {
-      const existing = await prisma.product.findUnique({ where: { slug: phone.slug } })
-      if (existing) {
-        log.push(`Skipped ${phone.slug} (exists)`)
-        continue
-      }
-
-      const scraped = await scrapeGsmarenaPhone(phone.specUrl)
-      if (!scraped || !scraped.name) {
-        log.push(`Scrape failed for ${phone.slug}`)
-        continue
-      }
-
-      await prisma.product.create({
-        data: {
-          id: phone.slug,
-          slug: phone.slug,
-          name: scraped.name,
-          image: scraped.image,
-          description: scraped.description,
-          price: scraped.price || "Price not available",
-          rating: scraped.rating || 0,
-          categoryId: category.id,
-          specs: JSON.stringify(scraped.specs),
-          pros: JSON.stringify(scraped.pros),
-          cons: JSON.stringify(scraped.cons),
-          sourceUrl: scraped.sourceUrl,
-        },
-      })
-
-      saved.push({
-        id: phone.slug,
-        name: scraped.name,
-        slug: phone.slug,
-        image: scraped.image,
-        description: scraped.description,
-        price: scraped.price || "Price not available",
-        rating: scraped.rating || 0,
-        category: category.name,
-        categoryId: category.id,
-        specs: scraped.specs,
-        pros: scraped.pros,
-        cons: scraped.cons,
-        sourceUrl: scraped.sourceUrl,
-      })
-      log.push(`Created ${scraped.name} (${phone.slug})`)
-    } catch (err) {
-      log.push(`Error for ${phone.slug}: ${String(err)}`)
-    }
+    const result = await processPhone(phone, category, log)
+    if (result) saved.push(result)
   }
 
   return { products: saved, log }
+}
+
+export async function autoFetchOnePlusProducts(): Promise<{ products: Product[]; log: string[] }> {
+  return autoFetchBrandProducts("OnePlus", 95)
+}
+
+export async function autoFetchMotorolaProducts(): Promise<{ products: Product[]; log: string[] }> {
+  return autoFetchBrandProducts("Motorola", 4)
+}
+
+export async function autoFetchXiaomiProducts(): Promise<{ products: Product[]; log: string[] }> {
+  return autoFetchBrandProducts("Xiaomi", 80)
+}
+
+export async function autoFetchIqooProducts(): Promise<{ products: Product[]; log: string[] }> {
+  return autoFetchBrandProducts("iQOO", 98)
 }
