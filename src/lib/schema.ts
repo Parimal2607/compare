@@ -25,10 +25,11 @@ export function productSchema(product: {
   description: string
   image: string
   price: string
-  rating: number
+  rating: number | null
   slug: string
 }) {
   const numericPrice = product.price.replace(/[^0-9.]/g, "")
+  const rating = product.rating ?? 0
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -42,11 +43,13 @@ export function productSchema(product: {
       priceCurrency: "USD",
       availability: "https://schema.org/InStock",
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: product.rating,
-      bestRating: 5,
-      ratingCount: Math.round(product.rating * 20),
-    },
+    ...(rating > 0 ? {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: rating,
+        bestRating: 5,
+        ratingCount: Math.round(rating * 20),
+      },
+    } : {}),
   }
 }

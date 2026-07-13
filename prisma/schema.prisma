@@ -21,11 +21,12 @@ model Product {
   id            String       @id
   name          String
   slug          String       @unique
-  image         String
+  image         String       @default("")
   heroImage     String?
   description   String
   price         String
-  rating        Float
+  rating        Float?
+  status        String       @default("available")
   categoryId    String
   category      Category     @relation(fields: [categoryId], references: [id])
   specs         String

@@ -8,7 +8,7 @@ interface RawProductRow {
   heroImage: string | null
   description: string
   price: string
-  rating: number
+  rating: number | null
   categoryId: string
   category?: { name: string } | null
   specs: string

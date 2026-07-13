@@ -17,7 +17,7 @@ export interface ProductFormData {
   heroImage: string
   description: string
   price: string
-  rating: number
+  rating: number | null
   categoryId: string
   specs: [string, string][]
   pros: string[]

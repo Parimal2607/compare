@@ -6,7 +6,7 @@ export interface Product {
   heroImage?: string
   description: string
   price: string
-  rating: number
+  rating: number | null
   category: string
   categoryId: string
   specs: Record<string, string>
