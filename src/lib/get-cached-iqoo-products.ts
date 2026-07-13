@@ -3,6 +3,6 @@ import { autoFetchIqooProducts } from "./gsmarena-scraper"
 
 export const getCachedIqooProducts = unstable_cache(
   async () => autoFetchIqooProducts(),
-  ["iqoo-products"],
-  { revalidate: 3600, tags: ["iqoo-products"] },
+  ["iqoo-products-v2"],
+  { revalidate: 3600, tags: ["iqoo-products-v2"] },
 )

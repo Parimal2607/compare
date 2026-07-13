@@ -53,7 +53,7 @@ function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms))
 }
 
-async function retryFetch(url: string, retries = 2): Promise<{ res: Response } | { error: string; status?: number }> {
+async function retryFetch(url: string, retries = 3): Promise<{ res: Response } | { error: string; status?: number }> {
   for (let i = 0; i <= retries; i++) {
     try {
       const res = await fetch(url, {
@@ -65,13 +65,13 @@ async function retryFetch(url: string, retries = 2): Promise<{ res: Response } |
       })
       if (res.ok) return { res }
       if (res.status === 429 || res.status === 403 || res.status >= 500) {
-        if (i < retries) await delay(3000 * (i + 1))
+        if (i < retries) await delay(4000 * (i + 1))
         continue
       }
       return { error: `HTTP ${res.status}`, status: res.status }
     } catch (err) {
       if (i < retries) {
-        await delay(2000 * (i + 1))
+        await delay(3000 * (i + 1))
         continue
       }
       return { error: String(err) }
@@ -95,6 +95,7 @@ export async function listBrandPhones(brandId: number): Promise<GsmarenaPhoneSou
   let hasMore = true
 
   while (hasMore) {
+    if (page > 1) await delay(1500) // pace pagination to avoid rate limiting
     const url = page === 1
       ? `https://www.gsmarena.com/${brandSlug}-phones-${brandId}.php`
       : `https://www.gsmarena.com/${brandSlug}-phones-f-${brandId}-0-p${page}.php`
@@ -419,11 +420,12 @@ export async function autoFetchBrandProducts(
   const recent = phones.slice(0, batchSize)
 
   // Cooldown before scraping spec pages to avoid rate limiting
-  await delay(2000)
+  await delay(3000)
 
   for (const phone of recent) {
     const result = await processPhone(phone, category, log)
     if (result) saved.push(result)
+    await delay(2500) // pace each scrape
   }
 
   return { products: saved, log }
