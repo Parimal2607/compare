@@ -307,34 +307,40 @@ export async function scrapeGsmarenaPhone(url: string): Promise<{
   }
 }
 
-export async function autoFetchOnePlusProducts(): Promise<Product[]> {
+export async function autoFetchOnePlusProducts(): Promise<{ products: Product[]; log: string[] }> {
+  const log: string[] = []
+  const saved: Product[] = []
+
   let category = await prisma.category.findFirst({ where: { name: "OnePlus" } })
   if (!category) {
     category = await prisma.category.create({
-      data: {
-        id: "oneplus",
-        name: "OnePlus",
-        slug: "oneplus",
-      },
+      data: { id: "oneplus", name: "OnePlus", slug: "oneplus" },
     })
+    log.push("Created OnePlus category")
+  } else {
+    log.push("Found existing OnePlus category")
   }
 
   const phones = await listBrandPhones(95)
-  if (phones.length === 0) return []
+  log.push(`Found ${phones.length} phones from GSMArena`)
+  if (phones.length === 0) return { products: [], log }
 
-  // Process up to 10 per run with rate limiting
-  const recent = phones.slice(0, 10)
-  const saved: Product[] = []
+  // Process up to 3 per run (Vercel 10s timeout)
+  const recent = phones.slice(0, 3)
 
   for (const phone of recent) {
     try {
       const existing = await prisma.product.findUnique({ where: { slug: phone.slug } })
-      if (existing) continue
-
-      await delay(1500)
+      if (existing) {
+        log.push(`Skipped ${phone.slug} (exists)`)
+        continue
+      }
 
       const scraped = await scrapeGsmarenaPhone(phone.specUrl)
-      if (!scraped || !scraped.name) continue
+      if (!scraped || !scraped.name) {
+        log.push(`Scrape failed for ${phone.slug}`)
+        continue
+      }
 
       await prisma.product.create({
         data: {
@@ -368,10 +374,11 @@ export async function autoFetchOnePlusProducts(): Promise<Product[]> {
         cons: scraped.cons,
         sourceUrl: scraped.sourceUrl,
       })
-    } catch {
-      continue
+      log.push(`Created ${scraped.name} (${phone.slug})`)
+    } catch (err) {
+      log.push(`Error for ${phone.slug}: ${String(err)}`)
     }
   }
 
-  return saved
+  return { products: saved, log }
 }

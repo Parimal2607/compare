@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const scraped: unknown[] = []
     for (const phone of first3) {
       const result = await scrapeGsmarenaPhone(phone.specUrl)
-      scraped.push({ phoneName: phone.name, result: result ? { name: result.name, specs: Object.keys(result.specs) } : null })
+      scraped.push({ phoneName: phone.name, result: result ? { name: result.name, specs: result.specs, price: result.price, image: result.image?.slice(0, 80) } : null })
     }
     return NextResponse.json({
       phonesFound: phones.length,
@@ -24,8 +24,12 @@ export async function GET(request: Request) {
   }
 
   try {
-    const products = await getCachedOnePlusProducts()
-    return NextResponse.json({ products, count: products.length }, {
+    const result = await getCachedOnePlusProducts()
+    return NextResponse.json({
+      products: result.products,
+      count: result.products.length,
+      log: result.log,
+    }, {
       headers: { "Cache-Control": "no-cache, max-age=0" },
     })
   } catch (err) {
