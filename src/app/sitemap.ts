@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma"
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || `https://${process.env.VERCEL_URL}` || "http://localhost:3000").replace(/\/+$/, "")
 
-  const [products, comparisons] = await Promise.all([
+  const [products, comparisons, newsArticles] = await Promise.all([
     prisma.product.findMany({ select: { slug: true, updatedAt: true } }),
     prisma.comparison.findMany({ select: { slug: true, updatedAt: true } }),
+    prisma.newsArticle.findMany({ select: { slug: true, published: true } }),
   ])
 
   return [
@@ -57,6 +58,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: c.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,
+    })),
+    ...newsArticles.map((n) => ({
+      url: `${baseUrl}/news/${n.slug}`,
+      lastModified: n.published,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
     })),
   ]
 }

@@ -13,13 +13,14 @@ export async function POST(request: Request) {
   const price = fd.get("price") as string
   const rating = parseFloat(fd.get("rating") as string)
   const affiliateLink = fd.get("affiliateLink") as string
+  const sourceUrl = fd.get("sourceUrl") as string
   const specs = normalizeJson(fd.get("specs") as string, "{}")
   const pros = normalizeJson(fd.get("pros") as string, "[]")
   const cons = normalizeJson(fd.get("cons") as string, "[]")
 
   const id = slug
   await prisma.product.create({
-    data: { id, name, slug, image, heroImage: heroImage || null, description: desc, price, rating, categoryId: catId, specs, pros, cons, affiliateLink: affiliateLink || null },
+    data: { id, name, slug, image, heroImage: heroImage || null, description: desc, price, rating, categoryId: catId, specs, pros, cons, affiliateLink: affiliateLink || null, sourceUrl: sourceUrl || null },
   })
   revalidatePath("/", "layout")
   revalidatePath("/admin/products")
@@ -38,13 +39,14 @@ export async function PUT(request: Request) {
   const price = fd.get("price") as string
   const rating = parseFloat(fd.get("rating") as string)
   const affiliateLink = fd.get("affiliateLink") as string
+  const sourceUrl = fd.get("sourceUrl") as string
   const specs = normalizeJson(fd.get("specs") as string, "{}")
   const pros = normalizeJson(fd.get("pros") as string, "[]")
   const cons = normalizeJson(fd.get("cons") as string, "[]")
 
   await prisma.product.update({
     where: { id },
-    data: { name, slug, image, heroImage: heroImage || null, description: desc, price, rating, categoryId: catId, specs, pros, cons, affiliateLink: affiliateLink || null },
+    data: { name, slug, image, heroImage: heroImage || null, description: desc, price, rating, categoryId: catId, specs, pros, cons, affiliateLink: affiliateLink || null, sourceUrl: sourceUrl || null },
   })
   revalidatePath("/", "layout")
   revalidatePath("/admin/products")

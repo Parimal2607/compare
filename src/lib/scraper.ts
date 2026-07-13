@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio"
+import { generateDescription, rephrasePros, rephraseCons } from "./rewrite"
 
 export interface ScrapedProduct {
   name: string
@@ -14,6 +15,7 @@ export interface ScrapedProduct {
   allImages: string[]
   allMeta: Record<string, string>
   rawJsonLd: Record<string, unknown>[]
+  sourceUrl: string
 }
 
 function slugify(text: string): string {
@@ -286,17 +288,18 @@ export async function scrapeUrl(url: string): Promise<ScrapedProduct> {
 
   return {
     name,
-    description,
+    description: generateDescription({ name, specs, price }),
     image: image.startsWith("http") ? image : "",
     price,
     rating,
     specs,
-    pros,
-    cons,
+    pros: rephrasePros(pros),
+    cons: rephraseCons(cons),
     allRatings,
     prices: allPrices,
     allImages,
     allMeta,
     rawJsonLd: jsonlds,
+    sourceUrl: url,
   }
 }

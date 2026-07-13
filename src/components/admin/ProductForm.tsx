@@ -23,6 +23,7 @@ export interface ProductFormData {
   pros: string[]
   cons: string[]
   affiliateLink: string
+  sourceUrl?: string
 }
 
 export default function ProductForm({ categories, product, action }: Props) {
@@ -99,6 +100,11 @@ export default function ProductForm({ categories, product, action }: Props) {
         <div>
           <label className="text-xs font-medium text-gray-500">Affiliate Link (optional)</label>
           <input name="affiliateLink" defaultValue={product?.affiliateLink || ""} placeholder="https://..."
+            className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-500">Source URL (optional)</label>
+          <input name="sourceUrl" defaultValue={product?.sourceUrl || ""} placeholder="https://..."
             className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100" />
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { getAllComparisonsGroupedByCategory } from "@/data/comparisons"
 import CategoryComparisons from "@/components/CategoryComparisons"
+import PageWithSidebar from "@/components/PageWithSidebar"
 import type { Metadata } from "next"
 
 export const revalidate = 60
@@ -17,5 +18,5 @@ export const metadata: Metadata = {
 
 export default async function CategoriesPage() {
   const groups = await getAllComparisonsGroupedByCategory()
-  return <CategoryComparisons groups={groups} />
+  return <PageWithSidebar><CategoryComparisons groups={groups} /></PageWithSidebar>
 }

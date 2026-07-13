@@ -51,6 +51,38 @@ export function productSchema(product: {
   }
 }
 
+export function newsArticleSchema(article: {
+  title: string
+  description: string
+  image: string
+  url: string
+  published: string
+  author: string
+  source: string
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    description: article.description,
+    image: article.image || undefined,
+    url: article.url,
+    datePublished: article.published,
+    author: {
+      "@type": "Person",
+      name: article.author || article.source,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: article.source,
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": article.url,
+    },
+  }
+}
+
 export function gameSchema(game: {
   name: string
   description: string

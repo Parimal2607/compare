@@ -1,6 +1,7 @@
 import { getProducts } from "@/data/products"
 import { getCategories } from "@/data/products"
 import ProductGrid from "@/components/ProductGrid"
+import PageWithSidebar from "@/components/PageWithSidebar"
 import type { Metadata } from "next"
 
 export const revalidate = 60
@@ -21,5 +22,5 @@ export default async function ProductsPage() {
     getProducts(),
     getCategories(),
   ])
-  return <ProductGrid products={products} categories={categories} />
+  return <PageWithSidebar><ProductGrid products={products} categories={categories} /></PageWithSidebar>
 }

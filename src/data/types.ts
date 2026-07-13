@@ -13,6 +13,7 @@ export interface Product {
   pros: string[]
   cons: string[]
   affiliateLink?: string
+  sourceUrl?: string
 }
 
 export interface Comparison {

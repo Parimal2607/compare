@@ -1,5 +1,6 @@
 import { getComparisonBySlugWithProducts, getComparisons } from "@/data/comparisons"
 import CompareContent from "./CompareContent"
+import PageWithSidebar from "@/components/PageWithSidebar"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { productSchema } from "@/lib/schema"
@@ -35,7 +36,7 @@ export default async function ComparePage({ params }: Props) {
     .map((p) => productSchema(p!))
 
   return (
-    <>
+    <PageWithSidebar>
       {schemas.map((s, i) => (
         <script
           key={i}
@@ -44,6 +45,6 @@ export default async function ComparePage({ params }: Props) {
         />
       ))}
       <CompareContent comparison={result.comparison} productA={result.productA} productB={result.productB} />
-    </>
+    </PageWithSidebar>
   )
 }

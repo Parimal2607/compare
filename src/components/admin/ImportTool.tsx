@@ -20,6 +20,7 @@ interface ScrapedData {
   allImages: string[]
   allMeta: Record<string, string>
   rawJsonLd: Record<string, unknown>[]
+  sourceUrl?: string
 }
 
 export default function ImportTool({ categories }: Props) {
@@ -78,6 +79,7 @@ export default function ImportTool({ categories }: Props) {
       formData.set("pros", JSON.stringify(editable.pros))
       formData.set("cons", JSON.stringify(editable.cons))
       formData.set("affiliateLink", "")
+      if (editable.sourceUrl) formData.set("sourceUrl", editable.sourceUrl)
 
       const res = await fetch("/api/admin/products", {
         method: "POST",

@@ -4,6 +4,7 @@ import { getCategoryNames, getProductCount, getProducts } from "@/data/products"
 import HeroBanner from "@/components/HeroBanner"
 import ComparisonCard from "@/components/ComparisonCard"
 import LatestProductsSection from "@/components/LatestProductsSection"
+import PageWithSidebar from "@/components/PageWithSidebar"
 import { websiteSchema } from "@/lib/schema"
 
 export const revalidate = 60
@@ -30,6 +31,8 @@ export default async function Home() {
         { image: "https://www.gizmochina.com/wp-content/uploads/2025/07/Upcoming-smartphones-July-2025.png" },
         { image: "https://s3b.cashify.in/gpro/uploads/2022/07/07020311/Best-Mobile-Phones-In-The-World.jpg" },
       ]} />
+
+      <PageWithSidebar>
 
       <section className="border-b border-gray-100 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -175,6 +178,8 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      </PageWithSidebar>
 
       <section className="bg-white py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

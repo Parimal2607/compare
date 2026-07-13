@@ -15,6 +15,7 @@ interface RawProductRow {
   pros: string
   cons: string
   affiliateLink: string | null
+  sourceUrl: string | null
 }
 
 interface RawComparisonRow {
@@ -73,6 +74,7 @@ export function parseProduct(row: RawProductRow): Product {
     pros: safeJsonParse(row.pros, []),
     cons: safeJsonParse(row.cons, []),
     affiliateLink: row.affiliateLink ?? undefined,
+    sourceUrl: row.sourceUrl ?? undefined,
   }
 }
 

@@ -2,6 +2,7 @@ import { getProductBySlug, getProducts } from "@/data/products"
 import { getComparionsByProductId, getComparisonsWithProductMap } from "@/data/comparisons"
 import ComparisonCard from "@/components/ComparisonCard"
 import ProductContent from "./ProductContent"
+import PageWithSidebar from "@/components/PageWithSidebar"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { productSchema } from "@/lib/schema"
@@ -38,7 +39,7 @@ export default async function ProductPage({ params }: Props) {
   const pSchema = productSchema(product)
 
   return (
-    <>
+    <PageWithSidebar>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(pSchema) }}
@@ -66,6 +67,6 @@ export default async function ProductPage({ params }: Props) {
         ) : null
       }
     />
-    </>
+    </PageWithSidebar>
   )
 }
