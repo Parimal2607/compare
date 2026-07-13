@@ -176,6 +176,32 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-gray-100 bg-gradient-to-r from-violet-50 to-blue-50 p-8 sm:p-12 text-center">
+            <div className="text-4xl mb-4">🎮</div>
+            <h2 className="text-2xl font-bold text-gray-900">Take a Break</h2>
+            <p className="mt-2 text-gray-500 max-w-md mx-auto">
+              Spin the wheel to find your perfect phone or play a quick game of Tic-Tac-Toe.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/games/spin-wheel"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
+              >
+                🎡 Spin the Wheel
+              </Link>
+              <Link
+                href="/games/tic-tac-toe"
+                className="inline-flex items-center gap-2 rounded-xl bg-white border border-gray-200 px-6 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
+              >
+                ✕ Play Tic-Tac-Toe
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-600 to-blue-600 py-24">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent" />
         <div className="absolute bottom-0 right-0 h-64 w-64 translate-x-1/3 translate-y-1/3 rounded-full bg-white/5 blur-3xl" />
