@@ -19,8 +19,8 @@ export default function NewsSidebar() {
   }, [])
 
   return (
-    <aside className="w-full lg:w-80 shrink-0">
-      <div className="sticky top-24 space-y-4 p-4 pt-2">
+    <aside className="w-full lg:w-80 shrink-0 mr-8 mt-8">
+      <div className="sticky top-8 space-y-4 p-4 pt-2 rounded-2xl border border-gray-100 bg-white shadow-sm">
         <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500">Tech News</h2>
 
         {loading ? (
