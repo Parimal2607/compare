@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import ScraperTrigger from "@/components/ScraperTrigger"
 
 const AD_PUBLISHER_ID = "ca-pub-5033636336412223"
 
@@ -63,6 +64,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1 w-full">{children}</main>
         <Footer />
+        <ScraperTrigger />
       </body>
     </html>
   )
