@@ -1,12 +1,12 @@
-import { getProducts } from "@/data/products"
-import { getCategories } from "@/data/products"
+import { getProducts, getCategories } from "@/data/products"
 import ProductGrid from "@/components/ProductGrid"
 import PageWithSidebar from "@/components/PageWithSidebar"
 import { after } from "next/server"
 import { revalidatePath } from "next/cache"
+import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
 
-export const revalidate = 60
+export const dynamic = "force-dynamic"
 export const maxDuration = 30
 
 export const metadata: Metadata = {
@@ -20,6 +20,25 @@ export const metadata: Metadata = {
   },
 }
 
+const BRANDS: { name: string; fn: () => Promise<{ products: unknown[]; log: string[] }> }[] = [
+  { name: "OnePlus", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchOnePlusProducts()) },
+  { name: "Motorola", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchMotorolaProducts()) },
+  { name: "Xiaomi", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchXiaomiProducts()) },
+  { name: "iQOO", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchIqooProducts()) },
+]
+
+async function shouldRunScraper(brandName: string): Promise<boolean> {
+  const slug = brandName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || brandName.toLowerCase()
+  const cat = await prisma.category.findFirst({ where: { slug } })
+  if (!cat) return true
+  const recent = await prisma.product.findFirst({
+    where: { categoryId: cat.id },
+    orderBy: { createdAt: "desc" },
+  })
+  if (!recent) return true
+  return Date.now() - recent.createdAt.getTime() > 50 * 60 * 1000
+}
+
 export default async function ProductsPage() {
   const [products, categories] = await Promise.all([
     getProducts(),
@@ -27,24 +46,20 @@ export default async function ProductsPage() {
   ])
 
   after(async () => {
-    const brands = ["oneplus", "motorola", "xiaomi", "iqoo"] as const
-    const { getCachedOnePlusProducts } = await import("@/lib/get-cached-oneplus-products")
-    const { getCachedMotorolaProducts } = await import("@/lib/get-cached-motorola-products")
-    const { getCachedXiaomiProducts } = await import("@/lib/get-cached-xiaomi-products")
-    const { getCachedIqooProducts } = await import("@/lib/get-cached-iqoo-products")
-    const fns = [getCachedOnePlusProducts, getCachedMotorolaProducts, getCachedXiaomiProducts, getCachedIqooProducts]
+    const brandIndex = Math.floor(Date.now() / 3600000) % BRANDS.length
+    const brand = BRANDS[brandIndex]
 
     try {
-      const results = await Promise.allSettled(fns.map((fn) => fn()))
-      const anyCreated = results.some(
-        (r) => r.status === "fulfilled" && r.value.products.length > 0,
-      )
-      if (anyCreated) {
+      const ok = await shouldRunScraper(brand.name)
+      if (!ok) return
+
+      const result = await brand.fn()
+      if (result.products.length > 0) {
         revalidatePath("/products")
         revalidatePath("/")
       }
     } catch {
-      // best-effort — scrapers will retry on next visit
+      // next visit will try
     }
   })
 
