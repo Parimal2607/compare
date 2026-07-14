@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio"
 import { generateDescription, rephrasePros, rephraseCons } from "./rewrite"
+import { generateComparisonsForProduct } from "./generate-comparison"
 import { prisma } from "./prisma"
 import type { Product } from "@/data/types"
 
@@ -423,7 +424,10 @@ export async function autoFetchBrandProducts(
     }
 
     const result = await processPhone(phone, category, log)
-    if (result) saved.push(result)
+    if (result) {
+      saved.push(result)
+      await generateComparisonsForProduct(result, 2).catch(() => {})
+    }
     await delay(2500)
   }
 
