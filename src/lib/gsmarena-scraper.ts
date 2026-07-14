@@ -411,15 +411,20 @@ export async function autoFetchBrandProducts(
   log.push(`Found ${phones.length} phones from GSMArena`)
   if (phones.length === 0) return { products: [], log }
 
-  const recent = phones.slice(0, batchSize)
-
-  // Cooldown before scraping spec pages to avoid rate limiting
   await delay(3000)
 
-  for (const phone of recent) {
+  for (const phone of phones) {
+    if (saved.length >= batchSize) break
+
+    const existing = await prisma.product.findUnique({ where: { slug: phone.slug } })
+    if (existing) {
+      log.push(`Skipped ${phone.slug} (exists)`)
+      continue
+    }
+
     const result = await processPhone(phone, category, log)
     if (result) saved.push(result)
-    await delay(2500) // pace each scrape
+    await delay(2500)
   }
 
   return { products: saved, log }
