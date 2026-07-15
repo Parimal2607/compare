@@ -6,6 +6,7 @@ import type { Product } from "@/data/types"
 const GSMARENA_BRANDS: Record<string, number> = {
   oneplus: 95,
   samsung: 9,
+  google: 107,
   apple: 48,
   xiaomi: 80,
   oppo: 82,
@@ -444,4 +445,12 @@ export async function autoFetchXiaomiProducts(): Promise<{ products: Product[]; 
 
 export async function autoFetchIqooProducts(): Promise<{ products: Product[]; log: string[] }> {
   return autoFetchBrandProducts("iQOO", 98)
+}
+
+export async function autoFetchSamsungProducts(): Promise<{ products: Product[]; log: string[] }> {
+  return autoFetchBrandProducts("Samsung", 9)
+}
+
+export async function autoFetchGoogleProducts(): Promise<{ products: Product[]; log: string[] }> {
+  return autoFetchBrandProducts("Google Pixel", 107)
 }

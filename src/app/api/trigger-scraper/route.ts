@@ -6,6 +6,8 @@ const BRANDS: { name: string; fn: () => Promise<{ products: unknown[]; log: stri
   { name: "Motorola", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchMotorolaProducts()) },
   { name: "Xiaomi", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchXiaomiProducts()) },
   { name: "iQOO", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchIqooProducts()) },
+  { name: "Samsung", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchSamsungProducts()) },
+  { name: "Google Pixel", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchGoogleProducts()) },
 ]
 
 export const dynamic = "force-dynamic"
