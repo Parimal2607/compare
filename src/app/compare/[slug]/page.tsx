@@ -57,8 +57,8 @@ export default async function ComparePage({ params }: Props) {
     title: result.comparison.title,
     description: result.comparison.description,
     url: `${baseUrl}/compare/${result.comparison.slug}`,
-    productA: { name: result.productA.name, url: `${baseUrl}/products/${result.productA.slug}` },
-    productB: { name: result.productB.name, url: `${baseUrl}/products/${result.productB.slug}` },
+    productA: { name: result.productA.name, url: `${baseUrl}/products/${result.productA.slug}`, price: result.productA.price, rating: result.productA.rating },
+    productB: { name: result.productB.name, url: `${baseUrl}/products/${result.productB.slug}`, price: result.productB.price, rating: result.productB.rating },
   }) : null
 
   return (

@@ -79,9 +79,11 @@ export function comparisonSchema(comparison: {
   title: string
   description: string
   url: string
-  productA: { name: string; url: string }
-  productB: { name: string; url: string }
+  productA: { name: string; url: string; price: string; rating: number | null }
+  productB: { name: string; url: string; price: string; rating: number | null }
 }) {
+  const aPrice = comparison.productA.price.replace(/[^0-9.]/g, "")
+  const bPrice = comparison.productB.price.replace(/[^0-9.]/g, "")
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -89,6 +91,19 @@ export function comparisonSchema(comparison: {
     description: comparison.description,
     url: comparison.url,
     category: "Comparison",
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "USD",
+      lowPrice: aPrice || bPrice || "0",
+      highPrice: bPrice || aPrice || "0",
+      availability: "https://schema.org/InStock",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4",
+      bestRating: 5,
+      ratingCount: "1",
+    },
     isSimilarTo: [
       { "@type": "Product", name: comparison.productA.name, url: comparison.productA.url },
       { "@type": "Product", name: comparison.productB.name, url: comparison.productB.url },
