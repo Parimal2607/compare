@@ -58,8 +58,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "CompareHub",
+    url: siteUrl(),
+    description:
+      "Side-by-side product comparisons and reviews across smartphones, laptops, and more.",
+  }
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        <link rel="canonical" href={siteUrl()} />
+        <link rel="alternate" hrefLang="en" href={siteUrl()} />
+        <link rel="alternate" hrefLang="x-default" href={siteUrl()} />
+        <meta name="geo.region" content="US" />
+        <meta name="geo.placename" content="Global" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
+      </head>
       <body className="min-h-screen bg-white font-sans text-gray-900 antialiased flex flex-col">
         <Header />
         <main className="flex-1 w-full">{children}</main>

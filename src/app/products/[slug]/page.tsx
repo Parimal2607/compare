@@ -5,7 +5,7 @@ import ProductContent from "./ProductContent"
 import PageWithSidebar from "@/components/PageWithSidebar"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { productSchema } from "@/lib/schema"
+import { productSchema, breadcrumbSchema } from "@/lib/schema"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -25,6 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: product.name,
     description: product.description,
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      type: "website",
+      ...(product.image ? { images: [{ url: product.image }] } : {}),
+    },
+    alternates: { canonical: `/products/${product.slug}` },
   }
 }
 
@@ -37,12 +44,21 @@ export default async function ProductPage({ params }: Props) {
   const productMap = relatedComparisons.length > 0 ? await getComparisonsWithProductMap(relatedComparisons) : new Map()
 
   const pSchema = productSchema(product)
+  const breadcrumbs = breadcrumbSchema([
+    { name: "Home", url: `${process.env.NEXT_PUBLIC_SITE_URL || ""}/` },
+    { name: "Products", url: `${process.env.NEXT_PUBLIC_SITE_URL || ""}/products` },
+    { name: product.name, url: `${process.env.NEXT_PUBLIC_SITE_URL || ""}/products/${product.slug}` },
+  ])
 
   return (
     <PageWithSidebar>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(pSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
       <ProductContent
         product={product}

@@ -65,6 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: article.excerpt,
       images: article.image ? [article.image] : [],
     },
+    alternates: { canonical: `/news/${article.slug}` },
   }
 }
 

@@ -5,7 +5,9 @@ export function websiteSchema() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "CompareHub",
+    alternateName: "CompareHub - Product Comparisons",
     url: siteUrl(),
+    inLanguage: "en",
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -14,6 +16,29 @@ export function websiteSchema() {
       },
       "query-input": "required name=search_term_string",
     },
+  }
+}
+
+export function organizationSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "CompareHub",
+    url: siteUrl(),
+    description: "Side-by-side product comparisons and reviews across smartphones, laptops, and more.",
+  }
+}
+
+export function breadcrumbSchema(items: { name: string; url: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
   }
 }
 
@@ -34,10 +59,11 @@ export function productSchema(product: {
     description: product.description,
     image: product.image,
     url: `${siteUrl()}/products/${product.slug}`,
+    brand: { "@type": "Brand", name: product.name.split(" ")[0] },
     offers: {
       "@type": "Offer",
-      price: numericPrice,
-      priceCurrency: "USD",
+      price: numericPrice || undefined,
+      priceCurrency: numericPrice ? "USD" : undefined,
       availability: "https://schema.org/InStock",
     },
     ...(rating > 0 ? {
@@ -48,6 +74,27 @@ export function productSchema(product: {
         ratingCount: Math.round(rating * 20),
       },
     } : {}),
+  }
+}
+
+export function comparisonSchema(comparison: {
+  title: string
+  description: string
+  url: string
+  productA: { name: string; url: string }
+  productB: { name: string; url: string }
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: comparison.title,
+    description: comparison.description,
+    url: comparison.url,
+    category: "Comparison",
+    isSimilarTo: [
+      { "@type": "Product", name: comparison.productA.name, url: comparison.productA.url },
+      { "@type": "Product", name: comparison.productB.name, url: comparison.productB.url },
+    ],
   }
 }
 
