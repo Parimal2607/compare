@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function Footer() {
   return (
     <footer className="border-t border-gray-100 bg-white">
@@ -8,6 +10,12 @@ export default function Footer() {
               C
             </div>
             <span className="text-sm font-semibold text-gray-600">CompareHub</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-gray-400">
+            <Link href="/about" className="hover:text-violet-600 transition-colors">About</Link>
+            <Link href="/privacy" className="hover:text-violet-600 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-violet-600 transition-colors">Terms</Link>
+            <Link href="/contact" className="hover:text-violet-600 transition-colors">Contact</Link>
           </div>
           <p className="text-xs text-gray-400">
             &copy; {new Date().getFullYear()} CompareHub
