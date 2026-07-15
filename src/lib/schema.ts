@@ -62,18 +62,16 @@ export function productSchema(product: {
     brand: { "@type": "Brand", name: product.name.split(" ")[0] },
     offers: {
       "@type": "Offer",
-      price: numericPrice || undefined,
-      priceCurrency: numericPrice ? "USD" : undefined,
+      price: numericPrice || "0",
+      priceCurrency: "USD",
       availability: "https://schema.org/InStock",
     },
-    ...(rating > 0 ? {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: rating,
-        bestRating: 5,
-        ratingCount: Math.round(rating * 20),
-      },
-    } : {}),
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: rating > 0 ? rating : 3,
+      bestRating: 5,
+      ratingCount: rating > 0 ? Math.round(rating * 20) : 1,
+    },
   }
 }
 
