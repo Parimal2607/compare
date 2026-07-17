@@ -130,11 +130,13 @@ function pickHighlight(a: ProductData, b: ProductData): string {
 }
 
 function generateDescription(a: ProductData, b: ProductData): string {
-  return `Compare ${a.name} vs ${b.name} — two ${a.categoryName} devices. ${pickHighlight(a, b)}.`
+  const sameCat = a.categoryName === b.categoryName
+  return `Compare ${a.name} vs ${b.name} — ${sameCat ? `two ${a.categoryName} devices` : `a ${a.categoryName} vs ${b.categoryName} face-off`}. ${pickHighlight(a, b)}.`
 }
 
 function generateSummary(a: ProductData, b: ProductData): string {
-  let s = `${a.name} and ${b.name} are ${a.categoryName} products. `
+  const sameCat = a.categoryName === b.categoryName
+  let s = `${a.name} and ${b.name} are ${sameCat ? `${a.categoryName} products` : `from different categories — ${a.categoryName} vs ${b.categoryName}`}. `
 
   const aSpecs = Object.keys(a.specs).length
   const bSpecs = Object.keys(b.specs).length
@@ -164,6 +166,13 @@ async function main() {
 
   const categories = [...new Set(products.map((p) => p.categoryId))]
   console.log(`Found ${categories.length} categories`)
+
+  // Global existing pairs lookup
+  const allGlobalComparisons = await prisma.comparison.findMany({
+    select: { slug: true, productAId: true, productBId: true },
+  })
+  const allGlobalPairs = new Set(allGlobalComparisons.map((c) => [c.productAId, c.productBId].sort().join("-")))
+  const allGlobalSlugs = new Set(allGlobalComparisons.map((c) => c.slug))
 
   let totalCreated = 0
 
@@ -239,6 +248,69 @@ async function main() {
 
     console.log(`  ${catName}: ${created} comparisons created`)
   }
+
+  // ── Cross-category comparisons ──
+  console.log("\n--- Cross-category comparisons ---")
+  const brandCategories = categories.filter((id) => {
+    const p = products.find((x) => x.categoryId === id)
+    return p && !["tech", "budget"].includes(p.categoryName.toLowerCase())
+  })
+
+  let crossCreated = 0
+  for (let i = 0; i < brandCategories.length; i++) {
+    for (let j = i + 1; j < brandCategories.length; j++) {
+      const catAProducts = products.filter((p) => p.categoryId === brandCategories[i])
+      const catBProducts = products.filter((p) => p.categoryId === brandCategories[j])
+      const catAName = catAProducts[0]?.categoryName || ""
+      const catBName = catBProducts[0]?.categoryName || ""
+
+      for (const a of catAProducts.slice(0, 6)) {
+        for (const b of catBProducts.slice(0, 6)) {
+          const pairKey = [a.id, b.id].sort().join("-")
+          if (allGlobalPairs.has(pairKey)) continue
+
+          const aPrice = parseFloat(a.price.replace(/[^0-9.]/g, ""))
+          const bPrice = parseFloat(b.price.replace(/[^0-9.]/g, ""))
+          if (aPrice && bPrice) {
+            const ratio = Math.max(aPrice, bPrice) / Math.min(aPrice, bPrice)
+            if (ratio > 2.5) continue
+          }
+
+          const slug = slugify(`${a.name} vs ${b.name} ${catAName} ${catBName}`)
+          if (!slug || allGlobalSlugs.has(slug)) continue
+
+          allGlobalSlugs.add(slug)
+          allGlobalPairs.add(pairKey)
+
+          const winnerIndex = isNewer(a, b)
+          const comparison = {
+            id: pairKey,
+            slug,
+            title: `${a.name} vs ${b.name}`,
+            description: generateDescription(a, b),
+            categoryId: a.categoryId,
+            productAId: a.id,
+            productBId: b.id,
+            summary: generateSummary(a, b),
+            verdict: generateVerdict(a, b, winnerIndex),
+            winnerIndex,
+            prosPerProductA: JSON.stringify(a.pros.slice(0, 4)),
+            consPerProductA: JSON.stringify(a.cons.slice(0, 4)),
+            prosPerProductB: JSON.stringify(b.pros.slice(0, 4)),
+            consPerProductB: JSON.stringify(b.cons.slice(0, 4)),
+          }
+
+          try {
+            await prisma.comparison.create({ data: comparison })
+            crossCreated++
+            totalCreated++
+            console.log(`  Cross: ${a.name} vs ${b.name}`)
+          } catch {}
+        }
+      }
+    }
+  }
+  console.log(`Cross-category comparisons created: ${crossCreated}`)
 
   console.log(`\nDone! Total comparisons created: ${totalCreated}`)
   await prisma.$disconnect()
