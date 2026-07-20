@@ -48,6 +48,13 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  alternates: {
+    canonical: siteUrl(),
+    languages: {
+      en: siteUrl(),
+      "x-default": siteUrl(),
+    },
+  },
   other: {
     "google-adsense-account": AD_PUBLISHER_ID,
   },
@@ -70,9 +77,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
-        <link rel="canonical" href={siteUrl()} />
-        <link rel="alternate" hrefLang="en" href={siteUrl()} />
-        <link rel="alternate" hrefLang="x-default" href={siteUrl()} />
         <meta name="geo.region" content="US" />
         <meta name="geo.placename" content="Global" />
         <script
