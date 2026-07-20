@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
 const BRANDS: { name: string; fn: () => Promise<{ products: unknown[]; log: string[] }> }[] = [
+  { name: "Apple", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchAppleProducts()) },
   { name: "OnePlus", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchOnePlusProducts()) },
   { name: "Motorola", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchMotorolaProducts()) },
   { name: "Xiaomi", fn: () => import("@/lib/gsmarena-scraper").then((m) => m.autoFetchXiaomiProducts()) },

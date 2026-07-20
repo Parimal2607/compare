@@ -454,3 +454,7 @@ export async function autoFetchSamsungProducts(): Promise<{ products: Product[];
 export async function autoFetchGoogleProducts(): Promise<{ products: Product[]; log: string[] }> {
   return autoFetchBrandProducts("Google Pixel", 107)
 }
+
+export async function autoFetchAppleProducts(): Promise<{ products: Product[]; log: string[] }> {
+  return autoFetchBrandProducts("Apple", 48)
+}
