@@ -1,4 +1,4 @@
-import { getProductBySlug, getProducts } from "@/data/products"
+import { getProductBySlug, getProducts, getProductsByCategory } from "@/data/products"
 import { getComparionsByProductId, getComparisonsWithProductMap } from "@/data/comparisons"
 import ComparisonCard from "@/components/ComparisonCard"
 import ProductContent from "./ProductContent"
@@ -42,6 +42,8 @@ export default async function ProductPage({ params }: Props) {
 
   const relatedComparisons = await getComparionsByProductId(product.id)
   const productMap = relatedComparisons.length > 0 ? await getComparisonsWithProductMap(relatedComparisons) : new Map()
+  const allCategoryProducts = await getProductsByCategory(product.categoryId)
+  const alternatives = allCategoryProducts.filter((p) => p.id !== product.id).slice(0, 6)
 
   const pSchema = productSchema(product)
   const breadcrumbs = breadcrumbSchema([
@@ -62,6 +64,7 @@ export default async function ProductPage({ params }: Props) {
       />
       <ProductContent
         product={product}
+        alternatives={alternatives}
         relatedComparisons={
         relatedComparisons.length > 0 ? (
           <section>

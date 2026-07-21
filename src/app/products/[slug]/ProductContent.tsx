@@ -1,21 +1,34 @@
 "use client"
-
 import Link from "next/link"
 import SafeImage from "@/components/SafeImage"
 import type { Product } from "@/data/types"
 import type { ReactNode } from "react"
+import { generateHighlights, generateVerdict, generateWhoShouldBuy, generateFaq, generateBuyingGuides } from "@/lib/product-content"
 
 export default function ProductContent({
   product,
   relatedComparisons,
+  alternatives,
 }: {
   product: Product
   relatedComparisons: ReactNode
+  alternatives: Product[]
 }) {
+  const highlights = generateHighlights(product.specs)
+  const verdict = generateVerdict(product)
+  const whoShouldBuy = generateWhoShouldBuy(product)
+  const faq = generateFaq(product)
+  const price = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0
+  const buyingGuides = generateBuyingGuides(product.category, price)
+
   return (
     <div className="mx-auto px-4 py-12 sm:px-6 lg:px-8">
       <nav className="mb-8 flex items-center gap-2 text-sm text-gray-500">
         <Link href="/" className="transition-colors hover:text-violet-600">Home</Link>
+        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+        <Link href="/products" className="transition-colors hover:text-violet-600">Products</Link>
         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
@@ -57,6 +70,45 @@ export default function ProductContent({
         </div>
       </div>
 
+      {highlights.length > 0 && (
+        <section className="mb-12">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">Key Highlights</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {highlights.map((h, i) => (
+              <div key={i} className="flex items-start gap-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-sm font-bold text-violet-600">
+                  {i + 1}
+                </span>
+                <p className="text-sm text-gray-600 leading-relaxed">{h}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="mb-12">
+        <h2 className="mb-6 text-2xl font-bold text-gray-900">Verdict</h2>
+        <div className="rounded-xl border border-gray-100 bg-gradient-to-br from-violet-50 to-white p-6 shadow-sm">
+          <p className="text-base leading-relaxed text-gray-700">{verdict}</p>
+        </div>
+      </section>
+
+      {whoShouldBuy.length > 0 && (
+        <section className="mb-12">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">Who Should Buy This?</h2>
+          <ul className="space-y-3">
+            {whoShouldBuy.map((w, i) => (
+              <li key={i} className="flex items-start gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-600">
+                  {i + 1}
+                </span>
+                <span className="text-sm text-gray-600">{w}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="mb-12">
         <h2 className="mb-6 text-2xl font-bold text-gray-900">Specifications</h2>
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -86,9 +138,7 @@ export default function ProductContent({
             <ul className="space-y-3">
               {product.pros.map((pro, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">
-                    {i + 1}
-                  </span>
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">{i + 1}</span>
                   {pro}
                 </li>
               ))}
@@ -104,9 +154,7 @@ export default function ProductContent({
             <ul className="space-y-3">
               {product.cons.map((con, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-[10px] font-bold text-red-600">
-                    {i + 1}
-                  </span>
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-[10px] font-bold text-red-600">{i + 1}</span>
                   {con}
                 </li>
               ))}
@@ -114,6 +162,75 @@ export default function ProductContent({
           </div>
         </div>
       </section>
+
+      {buyingGuides.length > 0 && (
+        <section className="mb-12">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">Buying Guide</h2>
+          <div className="space-y-4">
+            {buyingGuides.map((g, i) => (
+              <p key={i} className="text-sm leading-relaxed text-gray-600">{g}</p>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {faq.length > 0 && (
+        <section className="mb-12">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">Frequently Asked Questions</h2>
+          <div className="space-y-4">
+            {faq.map((item, i) => (
+              <details key={i} className="group overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+                <summary className="flex cursor-pointer items-center justify-between p-4 text-sm font-medium text-gray-900 transition-colors hover:text-violet-600">
+                  {item.q}
+                  <svg className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="border-t border-gray-100 p-4 text-sm text-gray-600 leading-relaxed">
+                  {item.a}
+                </div>
+              </details>
+            ))}
+          </div>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: faq.map((item) => ({
+                  "@type": "Question",
+                  name: item.q,
+                  acceptedAnswer: { "@type": "Answer", text: item.a },
+                })),
+              }),
+            }}
+          />
+        </section>
+      )}
+
+      {alternatives.length > 0 && (
+        <section className="mb-12">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">Alternatives to Consider</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {alternatives.map((alt) => (
+              <Link
+                key={alt.id}
+                href={`/products/${alt.slug}`}
+                className="group flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-50">
+                  <SafeImage src={alt.image} alt={alt.name} fill className="object-contain p-1" sizes="64px" />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-gray-900 group-hover:text-violet-600">{alt.name}</p>
+                  <p className="text-sm text-gray-500">{alt.price}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {relatedComparisons}
     </div>
