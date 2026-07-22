@@ -50,7 +50,7 @@ export function productSchema(product: {
   rating: number | null
   slug: string
 }) {
-  const numericPrice = product.price.replace(/[^0-9.]/g, "")
+  const numericPrice = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0
   const rating = product.rating ?? 0
   return {
     "@context": "https://schema.org",
@@ -62,7 +62,7 @@ export function productSchema(product: {
     brand: { "@type": "Brand", name: product.name.split(" ")[0] },
     offers: {
       "@type": "Offer",
-      price: numericPrice || "0",
+      price: numericPrice,
       priceCurrency: "USD",
       availability: "https://schema.org/InStock",
     },
@@ -82,8 +82,8 @@ export function comparisonSchema(comparison: {
   productA: { name: string; url: string; price: string; rating: number | null }
   productB: { name: string; url: string; price: string; rating: number | null }
 }) {
-  const aPrice = comparison.productA.price.replace(/[^0-9.]/g, "")
-  const bPrice = comparison.productB.price.replace(/[^0-9.]/g, "")
+  const aPrice = parseFloat(comparison.productA.price.replace(/[^0-9.]/g, "")) || 0
+  const bPrice = parseFloat(comparison.productB.price.replace(/[^0-9.]/g, "")) || 0
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -94,15 +94,15 @@ export function comparisonSchema(comparison: {
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "USD",
-      lowPrice: aPrice || bPrice || "0",
-      highPrice: bPrice || aPrice || "0",
+      lowPrice: Math.min(aPrice, bPrice),
+      highPrice: Math.max(aPrice, bPrice),
       availability: "https://schema.org/InStock",
     },
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: "4",
+      ratingValue: 4,
       bestRating: 5,
-      ratingCount: "1",
+      ratingCount: 1,
     },
     isSimilarTo: [
       { "@type": "Product", name: comparison.productA.name, url: comparison.productA.url },
