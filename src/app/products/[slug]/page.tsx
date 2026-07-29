@@ -4,7 +4,7 @@ import ComparisonCard from "@/components/ComparisonCard"
 import ProductContent from "./ProductContent"
 import PageWithSidebar from "@/components/PageWithSidebar"
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { redirect } from "next/navigation"
 import { productSchema, breadcrumbSchema } from "@/lib/schema"
 
 interface Props {
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
   const product = await getProductBySlug(slug)
-  if (!product) notFound()
+  if (!product) redirect("/products")
 
   const relatedComparisons = await getComparionsByProductId(product.id)
   const productMap = relatedComparisons.length > 0 ? await getComparisonsWithProductMap(relatedComparisons) : new Map()

@@ -2,7 +2,7 @@ import { getComparisonBySlugWithProducts, getComparisons } from "@/data/comparis
 import CompareContent from "./CompareContent"
 import PageWithSidebar from "@/components/PageWithSidebar"
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { redirect } from "next/navigation"
 import { productSchema, breadcrumbSchema, comparisonSchema } from "@/lib/schema"
 
 interface Props {
@@ -40,7 +40,7 @@ function siteUrl() {
 export default async function ComparePage({ params }: Props) {
   const { slug } = await params
   const result = await getComparisonBySlugWithProducts(slug)
-  if (!result) notFound()
+  if (!result) redirect("/compare")
 
   const baseUrl = siteUrl()
   const productSchemas = [result.productA, result.productB]
