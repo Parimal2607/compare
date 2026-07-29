@@ -18,6 +18,15 @@ export default async function Home() {
     getProducts(),
   ])
 
+  const latestProduct = products[0]
+  const heroImages = latestProduct?.image
+    ? [latestProduct.image, ...products.slice(1, 4).map((p) => p.image).filter(Boolean)]
+    : [
+        "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=1200",
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200",
+        "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=1200",
+      ]
+
   const wsSchema = websiteSchema()
 
   return (
@@ -26,11 +35,7 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(wsSchema) }}
       />
-      <HeroBanner slides={[
-        { image: "https://www.triveniworld.com/cdn/shop/articles/top-mobile-phones-of-2025-guides-and-reviews-triveni-world.webp?v=1736040418" },
-        { image: "https://www.gizmochina.com/wp-content/uploads/2025/07/Upcoming-smartphones-July-2025.png" },
-        { image: "https://s3b.cashify.in/gpro/uploads/2022/07/07020311/Best-Mobile-Phones-In-The-World.jpg" },
-      ]} />
+      <HeroBanner slides={heroImages.map((image) => ({ image }))} latestProductName={latestProduct?.name ?? null} />
 
       <PageWithSidebar>
 

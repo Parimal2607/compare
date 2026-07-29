@@ -8,7 +8,7 @@ interface BannerSlide {
   image: string
 }
 
-export default function HeroBanner({ slides }: { slides: BannerSlide[] }) {
+export default function HeroBanner({ slides, latestProductName }: { slides: BannerSlide[]; latestProductName?: string | null }) {
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
@@ -32,6 +32,14 @@ export default function HeroBanner({ slides }: { slides: BannerSlide[] }) {
 
   return (
     <section className="relative h-[70vh] min-h-[500px] max-h-[700px] overflow-hidden bg-gray-950">
+      {latestProductName && (
+        <div className="absolute right-4 top-4 z-20">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70 backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            New
+          </span>
+        </div>
+      )}
       {slides.map((slide, i) => (
         <div
           key={i}
@@ -56,7 +64,7 @@ export default function HeroBanner({ slides }: { slides: BannerSlide[] }) {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.1] animate-fade-in">
-              Find the Perfect Smartphone
+              {latestProductName ? `Latest: ${latestProductName}` : "Find the Perfect Smartphone"}
             </h1>
             <p className="mt-5 max-w-xl text-base text-white/60 leading-relaxed sm:text-lg animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
               Side-by-side comparisons, expert verdicts, and unbiased reviews to help you choose the best phone for your needs.
