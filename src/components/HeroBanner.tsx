@@ -51,14 +51,14 @@ export default function HeroBanner({ slides, latestProductName }: { slides: Bann
             src={slide.image}
             alt=""
             fill
-            className="object-cover"
+            className="object-contain p-4 sm:p-8"
             priority={i === 0}
             sizes="100vw"
           />
         </div>
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/50 to-gray-950/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-gray-950/20 to-transparent" />
 
       <div className="relative z-10 flex h-full items-end pb-16 sm:pb-20 lg:pb-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
