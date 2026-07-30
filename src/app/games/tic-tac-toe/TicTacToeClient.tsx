@@ -30,8 +30,16 @@ function getAvailableMoves(board: Cell[]): number[] {
   return board.reduce<number[]>((acc, c, i) => (c === null ? [...acc, i] : acc), [])
 }
 
-function aiMove(board: Cell[], ai: Player, human: Player): number {
+type Difficulty = "easy" | "medium" | "hard"
+
+function aiMove(board: Cell[], ai: Player, human: Player, difficulty: Difficulty): number {
   const available = getAvailableMoves(board)
+
+  const mistakeChance = difficulty === "easy" ? 0.4 : difficulty === "medium" ? 0.15 : 0
+  if (Math.random() < mistakeChance) {
+    return available[Math.floor(Math.random() * available.length)]
+  }
+
   for (const i of available) {
     const test = [...board]; test[i] = ai
     if (checkWinner(test) === ai) return i
@@ -54,6 +62,7 @@ export default function TicTacToeClient({ products }: { products: PhoneOption[] 
   const [searchB, setSearchB] = useState("")
   const [showDropA, setShowDropA] = useState(false)
   const [showDropB, setShowDropB] = useState(false)
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium")
   const [humanSide, setHumanSide] = useState<Player>("A")
   const [board, setBoard] = useState<Cell[]>(Array(9).fill(null))
   const [currentPlayer, setCurrentPlayer] = useState<Player>("A")
@@ -96,6 +105,8 @@ export default function TicTacToeClient({ products }: { products: PhoneOption[] 
     setPhase("play")
   }
 
+  const difficultyLabels = { easy: "Easy", medium: "Medium", hard: "Hard" } as const
+
   function handleCellClick(i: number) {
     if (board[i] || winner || isComputerThinking || phase !== "play") return
     if (currentPlayer !== humanSide) return
@@ -112,7 +123,7 @@ export default function TicTacToeClient({ products }: { products: PhoneOption[] 
     if (currentPlayer === computerSide && !winner && phase === "play") {
       setIsComputerThinking(true)
       const timer = setTimeout(() => {
-        const move = aiMove(board, computerSide, humanSide)
+        const move = aiMove(board, computerSide, humanSide, difficulty)
         const newBoard = [...board]
         newBoard[move] = computerSide
         setBoard(newBoard)
@@ -232,6 +243,22 @@ export default function TicTacToeClient({ products }: { products: PhoneOption[] 
 
       {phase === "pick-side" && phoneA && phoneB && (
         <div className="mt-10">
+          <p className="text-sm font-medium text-gray-600 mb-4">Choose difficulty</p>
+          <div className="flex justify-center gap-3 mb-8">
+            {(["easy", "medium", "hard"] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDifficulty(d)}
+                className={`rounded-xl px-5 py-2 text-sm font-semibold transition-all ${
+                  difficulty === d
+                    ? "bg-violet-600 text-white shadow-sm"
+                    : "border border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {difficultyLabels[d]}
+              </button>
+            ))}
+          </div>
           <p className="text-sm font-medium text-gray-600 mb-6">Which phone do you want to play as?</p>
           <div className="flex justify-center gap-6">
             <button
